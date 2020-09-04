@@ -1,1 +1,118 @@
 https://www.tutorialspoint.com/python/tk_text.htm
+
+
+if c.isalnum():
+                   #si es alpha puede ser texto o un link.
+                   #si es link siempre va en comillas
+                   estado = 2
+                   auxlex += c
+                   contacolumna +=1
+                elif c == '<':
+                    etiqueta_abierta = True
+                    estado = 1
+                    auxlex += c
+                    contacolumna += 
+
+
+
+
+
+
+ def escanear(self, entrada):
+       entrada = entrada + '%'
+       estado = 0
+       auxlex = ""
+
+
+       # BANDERAS
+       etiqueta_abierta = False
+       comillas_abiertas = False
+
+       es_complejo = False
+
+       c = None
+       y = len(entrada)-1
+
+       for i in range(y):
+           c = entrada[i]
+           
+           # acá mando todo a todos lados
+           if estado == 0:
+               if c == '<':
+                   #etiqueta_abierta = True
+                   estado = 1
+                   auxlex += c
+                   self.contacolumna += 1
+                   print(0.1, c)
+               elif c == '\n':
+                   self.contafila += 1
+                   
+               elif c.isalnum():
+                    #si es alpha puede ser texto o un link.
+                   estado = 3
+                   auxlex += c
+                   self.contacolumna +=1
+                   print(0.2, c)
+               else:
+                   if c == '%':
+                       print("Hemos concluido el analiss con exito")
+                   else:
+                       if (c == '\n' or c == '\t' or c=='\r' or c == "\n"):
+                           #no hago nada
+                           print("")
+                       else:
+                           print("Error Léxico con: " + c)
+                           self.contacolumna += 1
+                           estado = 0
+                           auxlex = ""
+                   
+           elif estado == 1:
+                #acá vienen las palabras reservadas y eso
+                #juntar cositos hasta que encuentre un espacio o un >
+
+                if c == '>':
+                    self.contacolumna += 1
+                    estado = 2
+                    auxlex += c
+                    print(1.1, auxlex)
+                    #acá leo el tag completo '<br>'
+                elif c == ' ':
+                    self.contacolumna +=1
+                    es_complejo = True
+                    estado = 4
+                    auxlex += c
+                    # acá leo solo la palabra en plan '<img '
+                else:
+                    estado = 1
+                    auxlex += c
+                    self.contacolumna += 1 
+           elif estado == 2:
+               #acá van las palabras reservadas
+               if auxlex.lower == "<html>":
+                   print(2.1, auxlex)
+                   n = TokenHTML("PR - html abrir", auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.html_abrir)
+                   i = i-1
+               elif auxlex.lower == "</html>":
+                   n = TokenHTML("PR - html cerrar", auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.html_abrir)
+                   i = i-1
+               elif auxlex.lower == "<head>":
+                   n = TokenHTML("PR - head abrir", auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.html_abrir)
+                   i = i-1
+               elif auxlex.lower == "</head>":
+                   n = TokenHTML("PR - head cerrar", auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.html_abrir)
+                   i = i-1
+           elif estado == 3:
+               print("soy una cadena!")
+
+       #print("Análisis terminado")
+       return self.listaTokens
+       #return self.listaSalida
+            

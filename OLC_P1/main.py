@@ -1,9 +1,28 @@
 import tkinter
+import os
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
 from tkinter import ttk 
 from tkinter import scrolledtext 
+import Analizador_html
+from collections import deque
+from pathlib import Path
+
+#
+#   HACER LA MAGIA HTML
+#
+
+texto = None
+final = ""
+
+def hacerLaMagiaHTML():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Iniciando el analizador léxico - HTML")
+    funcionaxfa = Analizador_html.AnalizadorHTML()
+    listaNueva = funcionaxfa.escanear(txtIngresado.get("1.0", END))
+    #listaNueva = funcionaxfa.escanear(final)
+    funcionaxfa.imprimirListaTokens(listaNueva)
 
 
 def aboutme():
@@ -12,10 +31,13 @@ def aboutme():
 def abrirArchivo():
     #devuelve la location de la cosa
     ventana.filename = filedialog.askopenfilename(initialdir="/home", title="Selecciona tu archivo")
-    f = open(ventana.filename, "r")
-    txtIngresado.insert(INSERT, f.read())
-    
+    f = open(ventana.filename, "r").read()
+    final = f
+    final = f.strip()
+    print("TEXTO QUE LEO: '", final, "'")
 
+    txtIngresado.insert(INSERT, final)
+    
 
 #
 #   VENTANAS Y COMPLEMENTOS
@@ -64,12 +86,17 @@ new_item.add_command(label='Guardar como')
 menu.add_cascade(label='Archivo', menu=new_item)
 nuevo = Menu(menu, tearoff=0)
 nuevo.add_command(label='Ejecutar Análisis')
+nuevo.add_command(label='Ejecutar HTML', command=hacerLaMagiaHTML)
+nuevo.add_command(label='Ejecutar CSS')
+nuevo.add_command(label='Ejecutar JavaScript')
 menu.add_cascade(label='Ejecutar', menu=nuevo)
 bout = Menu(menu, tearoff=0)
 bout.add_command(label='About', command=aboutme)
 menu.add_cascade(label='About', menu=bout)
 ventana.config(menu=menu)
 
-
-
 ventana.mainloop()
+
+
+
+    
