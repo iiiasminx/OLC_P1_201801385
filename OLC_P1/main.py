@@ -15,6 +15,9 @@ from pathlib import Path
 
 texto = None
 final = ""
+pathAbierto = ""
+
+
 
 def hacerLaMagiaHTML():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -24,6 +27,39 @@ def hacerLaMagiaHTML():
     #listaNueva = funcionaxfa.escanear(final)
     funcionaxfa.imprimirListaTokens(listaNueva)
 
+    listaConsola = funcionaxfa.pasarListaAString()
+    txtDentro.insert(INSERT, listaConsola)
+
+    #ya solo faltan pintar palabras :3
+
+
+
+def guardarComo():
+    f = filedialog.asksaveasfile(mode='w')
+    if f is None: 
+        return
+    text2save = str(txtIngresado.get(1.0, END)) 
+    f.write(text2save)
+    f.close()
+
+    pathAbierto = f.name
+    print(pathAbierto)
+
+def guardar():
+    if pathAbierto == "":
+        guardarComo()
+        return
+    
+    print("Guardando")
+    text2save = str(txtIngresado.get(1.0, END))
+    with open(pathAbierto, "r+") as f:
+       f.truncate(0)
+       f.write(text2save)
+       f.close()
+
+def nuevoBoton():
+    txtIngresado.delete('1.0', END)
+    txtDentro.delete('1.0', END)
 
 def aboutme():
     messagebox.showinfo(message="Yásmin Elisa Monterroso Escobedo\n\t201801385\n\t      :3", title="Sobre mi :D")
@@ -34,7 +70,7 @@ def abrirArchivo():
     f = open(ventana.filename, "r").read()
     final = f
     final = f.strip()
-    print("TEXTO QUE LEO: '", final, "'")
+    #print("TEXTO QUE LEO: '", final, "'")
 
     txtIngresado.insert(INSERT, final)
     
@@ -59,30 +95,42 @@ frDerecha = tkinter.Frame(ventana, bg ='plum4')
 lTitulo = tkinter.Label(frDerecha, text = "ML WEB EDITOR", bg ='plum4')
 lNumber = tkinter.Label(frDerecha, text = "[20.08]", bg ='plum4')
 lNumber4 = tkinter.Label(frDerecha, text = "        ", bg ='plum4')
+lNumber7 = tkinter.Label(frDerecha, text = "      ", bg ='plum4')
 txtIngresado = scrolledtext.ScrolledText(frDerecha, height = "20", width ="50")
 
 frIzquieda = tkinter.Frame(ventana, bg ='plum4')
 lNumber2 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber3 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
+lNumber5 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
+lNumber6 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 txtDentro = scrolledtext.ScrolledText(frIzquieda, height = "20", width ="36", fg= "snow", bg ="gray25")
+
+botonErrores = tkinter.Button(frIzquieda, text ="Reporte de Errores")
+botonNormal = tkinter.Button(frDerecha, text ="Reporte de Tokens")
+
 
 lTitulo.grid(row=0, column = 1)
 lNumber.grid(row=1, column = 1)
 txtIngresado.grid(row=2, column = 1)
-lNumber4.grid(row=0, column = 0)
+lNumber4.grid(row=3, column = 1)
+lNumber7.grid(row=2, column = 0)
+botonNormal.grid(row=4, column=1)
 frDerecha.grid(row=0, column=0)
 
 lNumber2.grid(row=0, column = 0)
 lNumber3.grid(row=1, column = 0)
+lNumber6.grid(row=1, column = 0)
 txtDentro.grid(row=3, column=1)
+lNumber5.grid(row=4, column=1)
+botonErrores.grid(row=5, column=1)
 frIzquieda.grid(row=0, column=1)
 
 menu = Menu(ventana, tearoff=0)
 new_item = Menu(menu, tearoff=0)
-new_item.add_command(label='Nuevo')
+new_item.add_command(label='Nuevo', command=nuevoBoton)
 new_item.add_command(label='Abrir', command=abrirArchivo)
 new_item.add_command(label='Guardar')
-new_item.add_command(label='Guardar como')
+new_item.add_command(label='Guardar como', command=guardarComo)
 menu.add_cascade(label='Archivo', menu=new_item)
 nuevo = Menu(menu, tearoff=0)
 nuevo.add_command(label='Ejecutar Análisis')
@@ -94,6 +142,8 @@ bout = Menu(menu, tearoff=0)
 bout.add_command(label='About', command=aboutme)
 menu.add_cascade(label='About', menu=bout)
 ventana.config(menu=menu)
+
+
 
 ventana.mainloop()
 

@@ -93,22 +93,22 @@ if c.isalnum():
                    n = TokenHTML("PR - html abrir", auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.html_abrir)
-                   i = i-1
+                   i -=1
                elif auxlex.lower == "</html>":
                    n = TokenHTML("PR - html cerrar", auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.html_abrir)
-                   i = i-1
+                   i -=1
                elif auxlex.lower == "<head>":
                    n = TokenHTML("PR - head abrir", auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.html_abrir)
-                   i = i-1
+                   i -=1
                elif auxlex.lower == "</head>":
                    n = TokenHTML("PR - head cerrar", auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.html_abrir)
-                   i = i-1
+                   i -=1
            elif estado == 3:
                print("soy una cadena!")
 
