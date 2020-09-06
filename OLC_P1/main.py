@@ -42,6 +42,10 @@ def hacerLaMagiaHTML():
     for f in listaColores:
         txtIngresado.insert(END, f.token, f.color)
 
+    funcionaxfa.crearHTMLReportes()
+    #messagebox.showinfo(message="REPORTE GENERADO CON ÉXITO", title=":D")
+
+
 
 def guardarComo():
     f = filedialog.asksaveasfile(mode='w')
