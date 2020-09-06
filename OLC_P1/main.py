@@ -23,15 +23,24 @@ def hacerLaMagiaHTML():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("Iniciando el analizador léxico - HTML")
     funcionaxfa = Analizador_html.AnalizadorHTML()
+    funcionaxfa.comenzar()
     listaNueva = funcionaxfa.escanear(txtIngresado.get("1.0", END))
+    txtDentro.delete('1.0', END)
     #listaNueva = funcionaxfa.escanear(final)
-    funcionaxfa.imprimirListaTokens(listaNueva)
+    #funcionaxfa.imprimirListaTokens(listaNueva)
 
     listaConsola = funcionaxfa.pasarListaAString()
     txtDentro.insert(INSERT, listaConsola)
 
-    #ya solo faltan pintar palabras :3
+    #ya solo faltan pintar palabras LISTANUEVA
+    txtIngresado.delete('1.0', END)
+    
 
+    #txtIngresado.insert(END, "holaaa", 'rojo')
+    listaColores = funcionaxfa.getColores()
+
+    for f in listaColores:
+        txtIngresado.insert(END, f.token, f.color)
 
 
 def guardarComo():
@@ -104,6 +113,8 @@ lNumber3 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber5 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber6 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 txtDentro = scrolledtext.ScrolledText(frIzquieda, height = "20", width ="36", fg= "snow", bg ="gray25")
+scrollbar = Scrollbar(txtDentro, orient='horizontal')
+
 
 botonErrores = tkinter.Button(frIzquieda, text ="Reporte de Errores")
 botonNormal = tkinter.Button(frDerecha, text ="Reporte de Tokens")
@@ -116,6 +127,17 @@ lNumber4.grid(row=3, column = 1)
 lNumber7.grid(row=2, column = 0)
 botonNormal.grid(row=4, column=1)
 frDerecha.grid(row=0, column=0)
+#scrollbar.grid(row=4, column=1)
+
+
+txtIngresado.tag_config('rojo', foreground="red")
+txtIngresado.tag_config('verde', foreground="green4")
+txtIngresado.tag_config('amarillo', foreground="goldenrod")
+txtIngresado.tag_config('azul', foreground="blue")
+txtIngresado.tag_config('gris', foreground="gray36")
+txtIngresado.tag_config('naranja', foreground="orange3")
+txtIngresado.tag_config('negro', foreground="gray2")
+txtIngresado.tag_config('blanco', foreground="snow")
 
 lNumber2.grid(row=0, column = 0)
 lNumber3.grid(row=1, column = 0)

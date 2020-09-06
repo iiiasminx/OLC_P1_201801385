@@ -18,7 +18,11 @@ class TokenC:
         return '{} {} {}'.format(self.tipo, "->", self.valor)
         #return self.tipo, " -> ", self.valor
     
-
+class TokenColor:
+    def __init__(self, token, color):
+        # Token.html_cerrar, "hdsih"
+        self.token = token
+        self.color = color
 
 class TokenHTML:
     def __init__(self, tipo, valor, contafila, contacolumna):
@@ -106,6 +110,10 @@ class Token(enum.Enum):
     tfoot_abrir = auto()
     tfoot_cerrar = auto()
     pr_cerrar = auto()
+    ruta_abrir = auto()
+    ruta_cerrar = auto()
+    path_windows = auto()
+    path_linux = auto()
 
 
 class ErrorHtml:
@@ -140,13 +148,24 @@ class AnalizadorHTML:
 
    contatoken = 1
    escadena = False
+   espathwindows = False
+   espathlinux = False
+   rutalinux = ""
 
    listaErrores = deque()
    listaTokens = deque()
+   listaColores = deque()
 
    arreglotokens = []
 
    stringListaSalida = ""
+
+   def comenzar(self):
+       self.stringListaSalida = ""
+       self.listaColores.clear()
+       self.listaErrores.clear()
+       self.listaSalida.clear()
+       self.listaTokens.clear()
 
    def escanear(self, entrada):
        #entrada1 = entrada.strip()
@@ -174,19 +193,29 @@ class AnalizadorHTML:
                    self.contacolumna += 1
                elif c == ' ':
                    self.contacolumna += 1
+                   w = TokenColor(c, 'blanco')
+                   self.listaColores.append(w)
                elif c == '\n':
                    self.contafila += 1
                    self.contacolumna = 0
+                   w = TokenColor(c, 'blanco')
+                   self.listaColores.append(w)
                elif c == '\r':
                    self.contacolumna += 1
+                   w = TokenColor(c, 'blanco')
+                   self.listaColores.append(w)
                elif c == '=':
                    self.auxlex += c
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
                    n = TokenHTML("Igual", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.igual)
                    self.contacolumna += 1
                elif c == '\"':
                    self.auxlex += c
+                   w = TokenColor(self.auxlex, 'amarillo')
+                   self.listaColores.append(w)
                    n = TokenHTML("Comillas dobles", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.comillas_dobles)
@@ -196,9 +225,12 @@ class AnalizadorHTML:
                        self.escadena = True
                        self.estado = 6
                    else:
-                       self.escadena == False
+                       self.escadena = False
+                       self.estado = 8
                elif c == '\'':
                    self.auxlex += c
+                   w = TokenColor(self.auxlex, 'amarillo')
+                   self.listaColores.append(w)
                    n = TokenHTML("Comillas simples", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.comillas_simples)
@@ -208,7 +240,8 @@ class AnalizadorHTML:
                        self.escadena = True
                        self.estado = 7
                    else:
-                       self.escadena == False
+                       self.escadena = False
+                       self.estado = 8
                    
                else:
                    if c == '%':
@@ -229,13 +262,14 @@ class AnalizadorHTML:
                elif c == ' ':
                    self.contacolumna += 1
                    self.estado = 3
-                   #lo mismo del dos peeero sin lo de cerrar
                else:
                    self.contacolumna += 1
                    self.auxlex += c
                    self.estado = 1
                    #print(self.auxlex)
            elif self.estado == 2:
+               w = TokenColor(self.auxlex, 'rojo')
+               self.listaColores.append(w)
                if self.auxlex.lower() == "<html>":
                    n = TokenHTML("PR - html abrir", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
@@ -493,6 +527,7 @@ class AnalizadorHTML:
                    i -=1
                else:
                    print("NO SE RECONOCE LA PALABRA2:  -> '", self.auxlex, "'")
+                   self.listaColores.pop()
                    n = ErrorHtml(self.contafila, self.contacolumna, self.auxlex)
                    self.listaErrores.append(n)
                    self.auxlex = ""
@@ -500,6 +535,8 @@ class AnalizadorHTML:
 
                    i -=1
            elif self.estado == 3:
+               w = TokenColor(self.auxlex, 'rojo')
+               self.listaColores.append(w)
                if self.auxlex.lower() == "<html":
                    n = TokenHTML("PR - html abrir2", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
@@ -630,20 +667,57 @@ class AnalizadorHTML:
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ol_abrir)
                    i -=1
+               elif self.auxlex.lower() == "<!--pathw:":
+                   n = TokenHTML("PR - ruta windows abrir", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.ruta_abrir)
+                   self.espathwindows = True
+                   i -=1
+               elif self.auxlex.lower() == "<!--pathl:":
+                   n = TokenHTML("PR - ruta linux abrir", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.ruta_abrir)
+                   self.espathlinux = True
+                   i -=1
                else:
                    print("NO SE RECONOCE LA PALABRA3:  -> '", self.auxlex, "'")
+                   self.listaColores.pop()
                    n = ErrorHtml(self.contafila, self.contacolumna, self.auxlex)
                    self.listaErrores.append(n)
                    self.auxlex = ""
                    self.estado = 0
 
                    i -=1
+               w = TokenColor(" ", 'rojo')
+               self.listaColores.append(w)
                self.estado = 4
            elif self.estado == 4:
                #de aquí vienen los que están abiertos
-               if c == '=':
+               if (self.espathlinux == True) or (self.espathwindows == True):
+                   if c == '>':                       
+                       self.auxlex += c
+                       if self.espathlinux == True:
+                           self.rutalinux = self.auxlex.replace('-->', '')
+                           print("PATH ENCONTRADO: ", self.rutalinux)
+                        # tengo rutaaa-->   
+
+                       self.espathwindows = False
+                       self.espathlinux = False                    
+
+                       w = TokenColor(self.auxlex, 'gris')
+                       self.listaColores.append(w)
+                       n = TokenHTML("Path", self.auxlex, self.contafila, self.contacolumna)
+                       self.listaTokens.append(n)
+                       self.agregarToken(Token.igual)
+                       self.contacolumna += 1
+                   else:
+                       self.contacolumna += 1
+                       self.auxlex += c
+                       self.estado = 4
+               elif c == '=':
                    self.contacolumna += 1
                    self.estado = 5
+                   i -=1
                   # print("mandando")
                else:
                    self.contacolumna += 1
@@ -651,6 +725,8 @@ class AnalizadorHTML:
                    self.estado = 4
                    #print(self.auxlex)
            elif self.estado == 5:
+               w = TokenColor(self.auxlex, 'rojo')
+               self.listaColores.append(w)
                if self.auxlex.lower() == "src":
                    n = TokenHTML("PR - src", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
@@ -673,6 +749,7 @@ class AnalizadorHTML:
                    i -=1
                else:
                    print("NO SE RECONOCE LA PALABRA5:  -> '", self.auxlex, "'")
+                   self.listaColores.pop()
                    n = ErrorHtml(self.contafila, self.contacolumna, self.auxlex)
                    self.listaErrores.append(n)
                    self.auxlex = ""
@@ -681,17 +758,21 @@ class AnalizadorHTML:
                    i -=1
            elif self.estado == 6:
                if c == "\"":
+                   w = TokenColor(self.auxlex, 'amarillo')
+                   self.listaColores.append(w)
                    n = TokenHTML("Cadena", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.cadena)
                    i -=1
                    self.contacolumna += 1
-                   self.estado = 8
+                   #self.estado = 8
                else:
                    self.estado = 6
                    self.auxlex += c
            elif self.estado == 7:
                if c == "'":
+                   w = TokenColor(self.auxlex, 'amarillo')
+                   self.listaColores.append(w)
                    n = TokenHTML("Cadena", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.cadena)
@@ -704,15 +785,24 @@ class AnalizadorHTML:
            elif self.estado == 8:
                if c == '>':
                    #acá es cuando estoy cerrando cadena
-                   self.auxlex = ">"
+                   self.auxlex += c
+                   w = TokenColor(self.auxlex, 'rojo')
+                   self.listaColores.append(w)
                    n = TokenHTML("PR - cerrar", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.pr_cerrar)
                    #todo
-                   i = i-2
+                   #i -=1
+                   # i-=2
                    self.contacolumna += 1
+               elif c == ' ':
+                   w = TokenColor(" ", 'rojo')
+                   self.listaColores.append(w)
+                   self.estado = 8
            elif self.estado == 9:
                if c == '<':
+                   w = TokenColor(self.auxlex, 'negro')
+                   self.listaColores.append(w)
                    n = TokenHTML("Texto normal", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.texto)
@@ -725,7 +815,6 @@ class AnalizadorHTML:
            i += 1
        return self.listaSalida
 
-
    def imprimirListaTokens(self, lista: deque):
        for f in lista:
            print(f)
@@ -736,6 +825,8 @@ class AnalizadorHTML:
            self.stringListaSalida += hola
        return self.stringListaSalida
 
+   def getColores(self):
+       return self.listaColores
 
    def agregarToken(self, tipoToken):
        n = TokenC(tipoToken, self.auxlex)
