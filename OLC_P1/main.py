@@ -6,6 +6,7 @@ from tkinter import filedialog
 from tkinter import ttk 
 from tkinter import scrolledtext 
 import Analizador_html
+import Analizador_css
 from collections import deque
 from pathlib import Path
 
@@ -17,6 +18,26 @@ texto = None
 final = ""
 pathAbierto = ""
 
+def hacerLaMagiaCSS():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Iniciando el analizador léxico - CSS")
+    funcionaxfa = Analizador_css.AnalizadorCSS()
+    funcionaxfa.comenzar()
+
+    listaNueva = funcionaxfa.escanear(txtIngresado.get("1.0", END))
+    txtDentro.delete('1.0', END)
+
+    listaConsola = funcionaxfa.pasarListaAString()
+    txtDentro.insert(INSERT, listaConsola)
+
+    txtIngresado.delete('1.0', END)
+    
+    listaColores = funcionaxfa.getColores()
+
+    for f in listaColores:
+        txtIngresado.insert(END, f.token, f.color)
+
+   #falta crear reportes!!
 
 
 def hacerLaMagiaHTML():
@@ -24,7 +45,8 @@ def hacerLaMagiaHTML():
     print("Iniciando el analizador léxico - HTML")
     funcionaxfa = Analizador_html.AnalizadorHTML()
     funcionaxfa.comenzar()
-    listaNueva = funcionaxfa.escanear(txtIngresado.get("1.0", END))
+    #listaNueva = funcionaxfa.escanear(txtIngresado.get("1.0", END))
+    funcionaxfa.escanear(txtIngresado.get("1.0", END))
     txtDentro.delete('1.0', END)
     #listaNueva = funcionaxfa.escanear(final)
     #funcionaxfa.imprimirListaTokens(listaNueva)
@@ -78,6 +100,7 @@ def aboutme():
     messagebox.showinfo(message="Yásmin Elisa Monterroso Escobedo\n\t201801385\n\t      :3", title="Sobre mi :D")
 
 def abrirArchivo():
+    nuevoBoton()
     #devuelve la location de la cosa
     ventana.filename = filedialog.askopenfilename(initialdir="/home", title="Selecciona tu archivo")
     f = open(ventana.filename, "r").read()
@@ -161,7 +184,7 @@ menu.add_cascade(label='Archivo', menu=new_item)
 nuevo = Menu(menu, tearoff=0)
 nuevo.add_command(label='Ejecutar Análisis')
 nuevo.add_command(label='Ejecutar HTML', command=hacerLaMagiaHTML)
-nuevo.add_command(label='Ejecutar CSS')
+nuevo.add_command(label='Ejecutar CSS', command=hacerLaMagiaCSS)
 nuevo.add_command(label='Ejecutar JavaScript')
 menu.add_cascade(label='Ejecutar', menu=nuevo)
 bout = Menu(menu, tearoff=0)

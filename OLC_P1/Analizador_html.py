@@ -4,6 +4,7 @@ from collections import deque
 from pathlib import Path
 import os
 import errno
+import time
 
 
 
@@ -849,6 +850,11 @@ class AnalizadorHTML:
            print("ERROR: no hay ruta :C")
            return
 
+        #  if os.path.exists(os.path.dirname(path)):
+        #  os.remove(path)
+        #   time.sleep(1)
+
+
        if not os.path.exists(os.path.dirname(path)):
            try:
                os.makedirs(os.path.dirname(path))
@@ -863,7 +869,7 @@ class AnalizadorHTML:
        
    def reporteCompleto(self):
 
-        self.mihtml = ("<!DOCTYPE HTML>" +
+        frase_actual = ("<!DOCTYPE HTML>" +
                 "<html>" +
                     "<head>" +
                         "<title>Mis Tokens</title>" +
@@ -871,10 +877,11 @@ class AnalizadorHTML:
                 "</head>" +
                 "<body><h1>Reporte de Análisis</h1>" +
                 "<h2>Lista de Tokens Aprobados</h2>")
+        self.mihtml = frase_actual
        
        #acá van mis tokens geniales
 
-        self.mihtml = (self.mihtml + "<table border=\"1\">"
+        frase_actual = ("<table border=\"1\">"
             + "<thead>"
             + "<tr><th><strong>#</strong></th>"
             + "<th><strong>Tipo</strong></th>"
@@ -882,6 +889,7 @@ class AnalizadorHTML:
             "<th><strong>Fila</strong></th>" +
             "<th><strong>Columna</strong></th></tr></thead>"
             + "<tbody>")
+        self.mihtml = self.mihtml + frase_actual
 
         contador = 0
 
@@ -889,14 +897,17 @@ class AnalizadorHTML:
             holi = str(contador)
             scontafila = str(f.contafilaa)
             scontacolumna = str(f.contacolumnaa)
+            token_valor = f.valor.replace("<", "&lt;")
+            tokenvalor = token_valor.replace(">", "&gt;")
 
-            self.mihtml = (self.mihtml
-                    + "<tr><td>" + holi + "</td>"
+            frase_actual = ("<tr><td>" + holi + "</td>"
                     + "<td>" + f.tipo + "</td>"
-                    + "<td>" + f.valor + "</td>"
+                    + "<td>" + tokenvalor + "</td>"
                     + "<td>" + scontafila+ "</td>"
                     + "<td>" + scontacolumna + "</td>"
                     + " </tr>")
+
+            self.mihtml = self.mihtml + frase_actual
             contador += 1
        
         #try:
@@ -904,14 +915,17 @@ class AnalizadorHTML:
         #except:
         #   print("Algo pasó a la hora del for en los reportes aprobados :c")
 
-        self.mihtml = self.mihtml + "</tbody></table></div><br><br><br>"
+        frase_actual = "</tbody></table></div><br><br><br>"
+        self.mihtml = self.mihtml + frase_actual
 
         #aquí empiezan los errores léxicos
 
         contador2 = 0
 
-        self.mihtml = self.mihtml + "<h2>Lista de Errores Léxicos</h2>"
-        self.mihtml = (self.mihtml + "<table border=\"1\">"
+        frase_actual = "<h2>Lista de Errores Léxicos</h2>"
+        self.mihtml = self.mihtml + frase_actual
+
+        frase_actual = ("<table border=\"1\">"
              + "<thead>"
              + "<tr><th><strong>#</strong></th>"
              + "<th><strong>Fila</strong></th>"
@@ -920,24 +934,31 @@ class AnalizadorHTML:
              + "<th><strong>Descripción</strong></th></tr></thead>"
              + "<tbody>")
 
+        self.mihtml = self.mihtml + frase_actual
+
         #try:
         for f in self.listaErrores:
             hello = str(contador2)
             slinea = str(f.linea)
             scol = str(f.columna)
-            self.mihtml = (self.mihtml
-                + "<tr><td>" + hello + "</td>"
+            token_valor = f.descripcion.replace("<", "&lt;")
+            tokenvalor = token_valor.replace(">", "&gt;")
+
+            frase_actual = ("<tr><td>" + hello + "</td>"
                 + "<td>" + slinea + "</td>"
                 + "<td>" + scol + "</td>"
                 + "<td>" + f.caracter+ "</td>"
-                + "<td>" + f.descripcion + "</td>"
+                + "<td>" + tokenvalor + "</td>"
                 + " </tr>")
+            self.mihtml = self.mihtml + frase_actual
             contador2 += 1
         #except:
         # print("Algo pasó a la hora del for en los reportes de error :c")
     
-        self.mihtml = self.mihtml + "</tbody></table></div><br><br><br>"
-        self.mihtml = self.mihtml + "</body></html>"
+        frase_actual = "</tbody></table></div><br><br><br>"
+        self.mihtml = self.mihtml + frase_actual
+        frase_actual = "</body></html>"
+        self.mihtml = self.mihtml + frase_actual
 
         return self.mihtml
 
