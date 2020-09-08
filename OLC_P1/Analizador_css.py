@@ -4,6 +4,9 @@ from collections import deque
 from pathlib import Path
 import os
 import errno
+import subprocess
+import webbrowser
+import time
 
 
 
@@ -51,6 +54,7 @@ class TokenCSS:
         return cadena
 
 class Token(enum.Enum):
+    ruta_abrir = auto()
     comentario_abrir = auto()
     comentario_cerrar = auto()
     comentario = auto()
@@ -72,19 +76,19 @@ class Token(enum.Enum):
     pr_font_weight = auto()
     pr_font_size = auto()
     pr_font = auto()
-    pr_padd_left = auto()
-    pr_padd_right = auto()
-    pr_padd_bottom = auto()
-    pr_padd_top = auto()
+    pr_padding_left = auto()
+    pr_padding_right = auto()
+    pr_padding_bottom = auto()
+    pr_padding_top = auto()
     pr_padding = auto()
     pr_display = auto()
     pr_line_height = auto()
     pr_width = auto()
     pr_height = auto()
-    pr_mar_top = auto()
-    pr_mar_right = auto()
-    pr_mar_bottom = auto()
-    pr_mar_left = auto()
+    pr_margin_top = auto()
+    pr_margin_right = auto()
+    pr_margin_bottom = auto()
+    pr_margin_left = auto()
     pr_margin = auto()
     pr_border_style = auto()
     pr_position = auto()
@@ -111,8 +115,9 @@ class Token(enum.Enum):
     porcentaje = auto()
     selector = auto()
     asterisco = auto()
+    selector_universal = auto()
     numeral = auto()
-    menos = auto()
+    guion = auto()
     parentesis_abrir = auto()
     parentesis_cerrar = auto()
     comillas_dobles = auto()
@@ -144,6 +149,9 @@ class AnalizadorCSS:
    contatoken = 1
    escadena = False
    yaNumeral = False
+   yaPR = False
+   yapunto = False
+   vueltaEspacio11 = False
 
    listaErrores = deque()
    listaTokens = deque()
@@ -151,6 +159,7 @@ class AnalizadorCSS:
 
    arreglotokens = []
 
+   linklinux = ""
    stringListaSalida = ""
    mihtml = ""
 
@@ -162,7 +171,7 @@ class AnalizadorCSS:
        self.listaTokens.clear()
 
    def escanear(self, entrada):
-       entrada = entrada + '%'
+       entrada = entrada + '$'
        self.estado = 0
       # print("'",entrada1,"'")
 
@@ -220,9 +229,18 @@ class AnalizadorCSS:
                    self.agregarToken(Token.llave_abrir)
                    self.contacolumna += 1
                    self.yaNumeral = False
-               elif c == '#':
+               elif c == '}':
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Llaves cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.llave_cerrar)
+                   self.contacolumna += 1
+                   self.yaNumeral = False
+               elif c == '#':
+                   self.auxlex += c
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenCSS("Numeral", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
@@ -231,7 +249,7 @@ class AnalizadorCSS:
                    self.yaNumeral = True
                elif c == '.':
                    self.auxlex += c
-                   w = TokenColor(self.auxlex, 'naranja')
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenCSS("Punto", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
@@ -239,14 +257,43 @@ class AnalizadorCSS:
                    self.contacolumna += 1
                elif c == ',':
                    self.auxlex += c
-                   w = TokenColor(self.auxlex, 'naranja')
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenCSS("Coma", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.coma)
                    self.contacolumna += 1
+               elif c == '%':
+                   self.auxlex += c
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Porcentaje", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.coma)
+                   self.contacolumna += 1
+               elif c == '-':
+                   self.auxlex += c
+                   w = TokenColor(self.auxlex, 'negro')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Guión", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.guion)
+                   self.contacolumna += 1
+               elif c == ';':
+                   self.yaPR = False
+                   self.auxlex += c
+                   w = TokenColor(self.auxlex, 'negro')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Punto y coma", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.punto_y_coma)
+                   self.contacolumna += 1
+               elif c.isnumeric():
+                   self.estado = 9
+                   self.auxlex += c
+                   self.contacolumna += 1
                else:
-                   if c == '%':
+                   if c == '$':
                        print("El análisis Ha terminado")
                    else:
                        if c == ' ':
@@ -280,12 +327,30 @@ class AnalizadorCSS:
                    i -=1
            elif self.estado == 2:
                if c == '*':
-                   w = TokenColor(self.auxlex, 'gris')
-                   self.listaColores.append(w)
-                   n = TokenCSS("Cuerpo Comentario", self.auxlex, self.contafila, self.contacolumna)
-                   self.listaTokens.append(n)
-                   self.agregarToken(Token.comentario)
-                   self.contacolumna += 1
+                   
+                   z = self.auxlex.lower()
+                   if z.startswith("pathw"):
+                       w = TokenColor(self.auxlex, 'gris')
+                       self.listaColores.append(w)
+                       n = TokenCSS("PR - ruta windows abrir", self.auxlex, self.contafila, self.contacolumna)
+                       self.listaTokens.append(n)
+                       self.agregarToken(Token.ruta_abrir)
+                   elif z.startswith("pathl"):
+                       w = TokenColor(self.auxlex, 'gris')
+                       self.listaColores.append(w)
+                       x = self.auxlex
+                       self.linklinux = x.replace('PATHL: ', '')
+                       print("LINK ENCONTRADO:", self.linklinux)
+                       n = TokenCSS("PR - ruta linux abrir", self.auxlex, self.contafila, self.contacolumna)
+                       self.listaTokens.append(n)
+                       self.agregarToken(Token.ruta_abrir)
+                   else:
+                       w = TokenColor(self.auxlex, 'gris')
+                       self.listaColores.append(w)
+                       n = TokenCSS("Cuerpo Comentario", self.auxlex, self.contafila, self.contacolumna)
+                       self.listaTokens.append(n)
+                       self.agregarToken(Token.comentario)
+                       self.contacolumna += 1                   
                    i -= 1
                else:
                    self.estado = 2
@@ -304,6 +369,17 @@ class AnalizadorCSS:
                    self.listaTokens.append(n)
                    self.agregarToken(Token.comentario_cerrar)
                    self.contacolumna += 1
+               elif c == '{':
+                   w = TokenColor(self.auxlex, 'rojo')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Selector Universal", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.selector_universal)
+                   self.contacolumna += 1
+                   i -= 1
+               elif c == ' ':
+                   self.estado = 7
+                   self.contacolumna +=1
                else:
                    w = TokenColor(self.auxlex, 'naranja')
                    self.listaColores.append(w)
@@ -331,13 +407,18 @@ class AnalizadorCSS:
                    else:
                        self.estado = 5
                    #pongo iwal todo lo que va de acá para abajo
-               elif c == '{' or c == ':' or c == '#' or c == ',':
+               elif c == '{' or c == '#' or c == ',':
                    w = TokenColor(self.auxlex, 'verde')
                    self.listaColores.append(w)
                    n = TokenCSS("Identificador", self.auxlex, self.contafila, self.contacolumna)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.identificador)
                    i -=1
+               elif c == ':':
+                   #solo lo mando para ver si es palabra reservada
+                   #else, es identificador
+                   self.contacolumna += 1
+                   self.estado = 8
                else:
                        print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
                        n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex)
@@ -378,6 +459,317 @@ class AnalizadorCSS:
                    self.agregarToken(Token.dos_puntos)
                    self.contacolumna += 1
                    i -= 1
+           elif self.estado == 7:
+               if c == '{':
+                   w = TokenColor(self.auxlex, 'rojo')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Selector Universal", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.selector_universal)
+                   self.contacolumna += 1
+                   i -= 1
+               else:
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Asterisco", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.asterisco)
+                   self.contacolumna += 1
+                   i -= 1
+           elif self.estado == 8:
+               w = TokenColor(self.auxlex, 'rojo')
+               self.listaColores.append(w)
+               self.yaPR = True
+               if self.auxlex.lower() == "color":
+                   n = TokenCSS("PR - color", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_color)
+                   i -=1
+               elif self.auxlex.lower() == "background-color":
+                   n = TokenCSS("PR - background-color", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_bg_color)
+                   i -=1
+               elif self.auxlex.lower() == "background-image":
+                   n = TokenCSS("PR - background-image", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_bg_image)
+                   i -=1
+               elif self.auxlex.lower() == "border":
+                   n = TokenCSS("PR - border", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_border)
+                   i -=1
+               elif self.auxlex.lower() == "opacity":
+                   n = TokenCSS("PR - opacity", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_opacity )
+                   i -=1
+               elif self.auxlex.lower() == "background":
+                   n = TokenCSS("PR - background", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_background )
+                   i -=1
+               elif self.auxlex.lower() == "text-align":
+                   n = TokenCSS("PR - text-align", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_text_align )
+                   i -=1
+               elif self.auxlex.lower() == "font-family":
+                   n = TokenCSS("PR - font-family", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_font_family )
+                   i -=1
+               elif self.auxlex.lower() == "font-style":
+                   n = TokenCSS("PR - font-style", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_font_style )
+                   i -=1
+               elif self.auxlex.lower() == "font-weight":
+                   n = TokenCSS("PR - font-weight", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_font_weight )
+                   i -=1
+               elif self.auxlex.lower() == "font-size":
+                   n = TokenCSS("PR - font-size", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_font_size )
+                   i -=1
+               elif self.auxlex.lower() == "font":
+                   n = TokenCSS("PR - font", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_font )
+                   i -=1
+               elif self.auxlex.lower() == "padding-left":
+                   n = TokenCSS("PR - padding-left", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_padding_left )
+                   i -=1
+               elif self.auxlex.lower() == "padding-right":
+                   n = TokenCSS("PR - padding-right", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_padding_right )
+                   i -=1     
+               elif self.auxlex.lower() == "padding-bottom":
+                   n = TokenCSS("PR - padding-bottom", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_padding_bottom )
+                   i -=1
+               elif self.auxlex.lower() == "padding-top":
+                   n = TokenCSS("PR - padding-top", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_padding_top )
+                   i -=1  
+               elif self.auxlex.lower() == "padding":
+                   n = TokenCSS("PR - padding", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_padding )
+                   i -=1   
+               elif self.auxlex.lower() == "display":
+                   n = TokenCSS("PR - display", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_display )
+                   i -=1
+               elif self.auxlex.lower() == "line-height":
+                   n = TokenCSS("PR - line-height", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_line_height )
+                   i -=1
+               elif self.auxlex.lower() == "height":
+                   n = TokenCSS("PR - height", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_height )
+                   i -=1
+               elif self.auxlex.lower() == "width":
+                   n = TokenCSS("PR - width", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_width )
+                   i -=1
+               elif self.auxlex.lower() == "margin-top":
+                   n = TokenCSS("PR - margin-top", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_margin_top )
+                   i -=1
+               elif self.auxlex.lower() == "margin-right":
+                   n = TokenCSS("PR - margin-right", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_margin_right )
+                   i -=1
+               elif self.auxlex.lower() == "margin-bottom":
+                   n = TokenCSS("PR - margin-bottom", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_margin_bottom )
+                   i -=1
+               elif self.auxlex.lower() == "margin-left":
+                   n = TokenCSS("PR - margin-left", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_margin_left )
+                   i -=1
+               elif self.auxlex.lower() == "margin":
+                   n = TokenCSS("PR - margin", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_margin )
+                   i -=1
+               elif self.auxlex.lower() == "border-style":
+                   n = TokenCSS("PR - border-style", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_border_style )
+                   i -=1
+               elif self.auxlex.lower() == "position":
+                   n = TokenCSS("PR - position", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_position )
+                   i -=1
+               elif self.auxlex.lower() == "bottom":
+                   n = TokenCSS("PR - bottom", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_bottom )
+                   i -=1
+               elif self.auxlex.lower() == "top":
+                   n = TokenCSS("PR - top", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_top )
+                   i -=1
+               elif self.auxlex.lower() == "right":
+                   n = TokenCSS("PR - right", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_right )
+                   i -=1
+               elif self.auxlex.lower() == "left":
+                   n = TokenCSS("PR - left", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_left )
+                   i -=1
+               elif self.auxlex.lower() == "float":
+                   n = TokenCSS("PR - float", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_float )
+                   i -=1
+               elif self.auxlex.lower() == "clear":
+                   n = TokenCSS("PR - clear", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_clear )
+                   i -=1
+               elif self.auxlex.lower() == "max-width":
+                   n = TokenCSS("PR - max-width", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_max_width )
+                   i -=1
+               elif self.auxlex.lower() == "min-width":
+                   n = TokenCSS("PR - min-width", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_min_width )
+                   i -=1
+               elif self.auxlex.lower() == "min-height":
+                   n = TokenCSS("PR - min-height", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_min_height )
+                   i -=1
+               elif self.auxlex.lower() == "max-height":
+                   n = TokenCSS("PR - max-height", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_max_height )
+                   i -=1
+               else:
+                   self.yaPR = False
+                   self.listaColores.pop()
+                   w = TokenColor(self.auxlex, 'verde')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Identificador", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.identificador)
+               i -= 1
+           elif self.estado == 9:
+               if c.isnumeric():
+                   self.estado = 9
+                   self.auxlex += c
+                   self.contacolumna += 1
+               elif c == '.':
+                   if self.yapunto == False:
+                       self.yapunto = True
+                       self.estado = 9
+                       self.auxlex += c
+                       self.contacolumna += 1
+                   else:
+                       print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
+                       n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex)
+                       self.listaErrores.append(n)
+                       self.auxlex = ""
+                       self.estado = 0
+               else:
+                   self.yapunto = False
+                   w = TokenColor(self.auxlex, 'azul')
+                   self.listaColores.append(w)
+                   n = TokenCSS("Número", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.numero)
+
+                   if c.isalpha() or c == ' ':
+                       self.estado = 10
+                   
+                   i -=1
+           elif self.estado == 10:
+               if c.isalpha():
+                   self.estado = 10
+                   self.auxlex += c
+                   self.contacolumna += 1
+               else:
+                   self.contacolumna += 1
+                   self.estado = 11
+           elif self.estado == 11:
+               w = TokenColor(self.auxlex, 'rojo')
+               self.listaColores.append(w)
+               if self.auxlex.lower() == "px":
+                   n = TokenCSS("U - px", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_px)
+                   i -=1
+               elif self.auxlex.lower() == "em":
+                   n = TokenCSS("U - em", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_em)
+                   i -=1
+               elif self.auxlex.lower() == "vh":
+                   n = TokenCSS("U - vh", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_vh)
+                   i -=1
+               elif self.auxlex.lower() == "vw":
+                   n = TokenCSS("U - vw", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_vw)
+                   i -=1
+               elif self.auxlex.lower() == "in":
+                   n = TokenCSS("U - in", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_in)
+                   i -=1
+               elif self.auxlex.lower() == "cm":
+                   n = TokenCSS("U - cm", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_cm)
+                   i -=1
+               elif self.auxlex.lower() == "mm":
+                   n = TokenCSS("U - mm", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_mm)
+                   i -=1
+               elif self.auxlex.lower() == "pt":
+                   n = TokenCSS("U - pt", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_pt)
+                   i -=1
+               elif self.auxlex.lower() == "pc":
+                   n = TokenCSS("U - pc", self.auxlex, self.contafila, self.contacolumna)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.u_pc)
+                   i -=1
+               else:
+                   print("NO SE RECONOCE LA UNIDAD DE MEDIDA:  -> '", self.auxlex, "'")
+                   n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex)
+                   self.listaErrores.append(n)
+                   self.auxlex = ""
+                   self.estado = 0
 
            i += 1
 
@@ -401,3 +793,125 @@ class AnalizadorCSS:
        self.listaSalida.append(n)
        self.auxlex = ""
        self.estado = 0
+
+   def crearHTMLReportes(self):
+       contenido = self.reporteCompleto()
+       #print(contenido)
+       path = self.linklinux
+
+       if path == "":
+           print("ERROR: no hay ruta :C")
+           return
+
+        #  if os.path.exists(os.path.dirname(path)):
+        #  os.remove(path)
+        #   time.sleep(1)
+
+
+       if not os.path.exists(os.path.dirname(path)):
+           try:
+               os.makedirs(os.path.dirname(path))
+           except OSError as exc: # Guard against race condition
+              if exc.errno != errno.EEXIST:
+                  raise
+            
+       with open(path, "w") as f:
+            f.write(contenido) 
+
+       print("Reporte generado con éxito :D")
+       time.sleep(1)
+       webbrowser.open('file://' + os.path.realpath(path))
+   
+   def reporteCompleto(self):
+        frase_actual = ("<!DOCTYPE HTML>" +
+                "<html>" +
+                    "<head>" +
+                        "<title>Mis Tokens CSS</title>" +
+                        "<meta charset=\"utf8\">" +
+                "</head>" +
+                "<body><h1>Reporte de Análisis</h1>" +
+                "<h2>Lista de Tokens Aprobados</h2>")
+        self.mihtml = frase_actual
+       
+       #acá van mis tokens geniales
+
+        frase_actual = ("<table border=\"1\">"
+            + "<thead>"
+            + "<tr><th><strong>#</strong></th>"
+            + "<th><strong>Tipo</strong></th>"
+            + "<th><strong>Valor de Token</strong></th>"+
+            "<th><strong>Fila</strong></th>" +
+            "<th><strong>Columna</strong></th></tr></thead>"
+            + "<tbody>")
+        self.mihtml = self.mihtml + frase_actual
+
+        contador = 0
+
+        for f in self.listaTokens:
+            holi = str(contador)
+            scontafila = str(f.contafilaa)
+            scontacolumna = str(f.contacolumnaa)
+            token_valor = f.valor.replace("<", "&lt;")
+            tokenvalor = token_valor.replace(">", "&gt;")
+
+            frase_actual = ("<tr><td>" + holi + "</td>"
+                    + "<td>" + f.tipo + "</td>"
+                    + "<td>" + tokenvalor + "</td>"
+                    + "<td>" + scontafila+ "</td>"
+                    + "<td>" + scontacolumna + "</td>"
+                    + " </tr>")
+
+            self.mihtml = self.mihtml + frase_actual
+            contador += 1
+       
+        #try:
+           
+        #except:
+        #   print("Algo pasó a la hora del for en los reportes aprobados :c")
+
+        frase_actual = "</tbody></table></div><br><br><br>"
+        self.mihtml = self.mihtml + frase_actual
+
+        #aquí empiezan los errores léxicos
+
+        contador2 = 0
+
+        frase_actual = "<h2>Lista de Errores Léxicos</h2>"
+        self.mihtml = self.mihtml + frase_actual
+
+        frase_actual = ("<table border=\"1\">"
+             + "<thead>"
+             + "<tr><th><strong>#</strong></th>"
+             + "<th><strong>Fila</strong></th>"
+             + "<th><strong>Columna</strong></th>"
+             + "<th><strong>Caracter</strong></th>"
+             + "<th><strong>Descripción</strong></th></tr></thead>"
+             + "<tbody>")
+
+        self.mihtml = self.mihtml + frase_actual
+
+        #try:
+        for f in self.listaErrores:
+            hello = str(contador2)
+            slinea = str(f.linea)
+            scol = str(f.columna)
+            token_valor = f.descripcion.replace("<", "&lt;")
+            tokenvalor = token_valor.replace(">", "&gt;")
+
+            frase_actual = ("<tr><td>" + hello + "</td>"
+                + "<td>" + slinea + "</td>"
+                + "<td>" + scol + "</td>"
+                + "<td>" + f.caracter_error+ "</td>"
+                + "<td>" + tokenvalor + "</td>"
+                + " </tr>")
+            self.mihtml = self.mihtml + frase_actual
+            contador2 += 1
+        #except:
+        # print("Algo pasó a la hora del for en los reportes de error :c")
+    
+        frase_actual = "</tbody></table></div><br><br><br>"
+        self.mihtml = self.mihtml + frase_actual
+        frase_actual = "</body></html>"
+        self.mihtml = self.mihtml + frase_actual
+
+        return self.mihtml

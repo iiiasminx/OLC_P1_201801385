@@ -37,9 +37,10 @@ def hacerLaMagiaCSS():
     for f in listaColores:
         txtIngresado.insert(END, f.token, f.color)
 
+    funcionaxfa.crearHTMLReportes()
+
    #falta crear reportes!!
-
-
+   
 def hacerLaMagiaHTML():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("Iniciando el analizador léxico - HTML")
@@ -66,8 +67,6 @@ def hacerLaMagiaHTML():
 
     funcionaxfa.crearHTMLReportes()
     #messagebox.showinfo(message="REPORTE GENERADO CON ÉXITO", title=":D")
-
-
 
 def guardarComo():
     f = filedialog.asksaveasfile(mode='w')

@@ -28,7 +28,8 @@ para3 :: para4 {
 para5:para6{
 para7#para8 para9{
 h1, h2, para10 {
-
+.para11 {
+* {
 
 NO SE RECONOCE LA PALABRA:  -> ' para8 '
 NO SE RECONOCE LA PALABRA0:  -> '  '

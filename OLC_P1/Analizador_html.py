@@ -5,6 +5,8 @@ from pathlib import Path
 import os
 import errno
 import time
+import subprocess
+import webbrowser
 
 
 
@@ -843,7 +845,7 @@ class AnalizadorHTML:
 
    def crearHTMLReportes(self):
        contenido = self.reporteCompleto()
-       print(contenido)
+      # print(contenido)
        path = self.rutalinux
 
        if path == "":
@@ -866,6 +868,8 @@ class AnalizadorHTML:
             f.write(contenido) 
 
        print("Reporte generado con éxito :D")
+       time.sleep(1)
+       webbrowser.open('file://' + os.path.realpath(path))
        
    def reporteCompleto(self):
 
@@ -947,7 +951,7 @@ class AnalizadorHTML:
             frase_actual = ("<tr><td>" + hello + "</td>"
                 + "<td>" + slinea + "</td>"
                 + "<td>" + scol + "</td>"
-                + "<td>" + f.caracter+ "</td>"
+                + "<td>" + f.caracter_error+ "</td>"
                 + "<td>" + tokenvalor + "</td>"
                 + " </tr>")
             self.mihtml = self.mihtml + frase_actual
