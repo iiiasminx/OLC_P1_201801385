@@ -216,7 +216,7 @@ class AnalizadorHTML:
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'naranja')
                    self.listaColores.append(w)
-                   n = TokenHTML("Igual", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("Igual", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.igual)
                    self.contacolumna += 1
@@ -224,7 +224,7 @@ class AnalizadorHTML:
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'amarillo')
                    self.listaColores.append(w)
-                   n = TokenHTML("Comillas dobles", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("Comillas dobles", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.comillas_dobles)
                    self.contacolumna += 1
@@ -239,7 +239,7 @@ class AnalizadorHTML:
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'amarillo')
                    self.listaColores.append(w)
-                   n = TokenHTML("Comillas simples", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("Comillas simples", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.comillas_simples)
                    self.contacolumna += 1
@@ -279,257 +279,257 @@ class AnalizadorHTML:
                w = TokenColor(self.auxlex, 'rojo')
                self.listaColores.append(w)
                if self.auxlex.lower() == "<html>":
-                   n = TokenHTML("PR - html abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - html abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.html_abrir)
                    i -=1
                elif self.auxlex.lower() == "</html>":
-                   n = TokenHTML("PR - html cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - html cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.html_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<head>":
-                   n = TokenHTML("PR - head abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - head abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.head_abrir)
                    i -=1
                elif self.auxlex.lower() == "</head>":
-                   n = TokenHTML("PR - head cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - head cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.head_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<title>":
-                   n = TokenHTML("PR - title abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - title abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.title_abrir)
                    i -=1
                elif self.auxlex.lower() == "</title>":
-                   n = TokenHTML("PR - title cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - title cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.title_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<body>":
-                   n = TokenHTML("PR - body abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - body abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.body_abrir)
                    i -=1
                elif self.auxlex.lower() == "</body>":
-                   n = TokenHTML("PR - body cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - body cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.body_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<h1>":
-                   n = TokenHTML("PR - h1 abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h1 abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h1_abrir)
                    i -=1
                elif self.auxlex.lower() == "</h1>":
-                   n = TokenHTML("PR - h1 cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h1 cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h1_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<h2>":
-                   n = TokenHTML("PR - h2 abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h2 abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h2_abrir)
                    i -=1
                elif self.auxlex.lower() == "</h2>":
-                   n = TokenHTML("PR - h2 cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h2 cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h2_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<h3>":
-                   n = TokenHTML("PR - h3 abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h3 abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h3_abrir)
                    i -=1
                elif self.auxlex.lower() == "</h3>":
-                   n = TokenHTML("PR - h3 cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h3 cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h3_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<h4>":
-                   n = TokenHTML("PR - h4 abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h4 abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h4_abrir)
                    i -=1
                elif self.auxlex.lower() == "</h4>":
-                   n = TokenHTML("PR - h4 cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h4 cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h4_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<h5>":
-                   n = TokenHTML("PR - h5 abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h5 abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h5_abrir)
                    i -=1
                elif self.auxlex.lower() == "</h5>":
-                   n = TokenHTML("PR - h5 cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h5 cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h5_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<h6>":
-                   n = TokenHTML("PR - h6 abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h6 abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h6_abrir)
                    i -=1
                elif self.auxlex.lower() == "</h6>":
-                   n = TokenHTML("PR - h6 cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h6 cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h6_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<p>":
-                   n = TokenHTML("PR - p abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - p abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.p_abrir)
                    i -=1
                elif self.auxlex.lower() == "</p>":
-                   n = TokenHTML("PR - p cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - p cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.p_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<br>":
-                   n = TokenHTML("PR - br", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - br", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.br)
                    i -=1
                elif self.auxlex.lower() == "<ul>":
-                   n = TokenHTML("PR - ul abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - ul abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ul_abrir)
                    i -=1
                elif self.auxlex.lower() == "</ul>":
-                   n = TokenHTML("PR - ul cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - ul cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ul_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<li>":
-                   n = TokenHTML("PR - li abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - li abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.li_abrir)
                    i -=1
                elif self.auxlex.lower() == "</li>":
-                   n = TokenHTML("PR - li cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - li cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.li_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<table>":
-                   n = TokenHTML("PR - table abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - table abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.table_abrir)
                    i -=1
                elif self.auxlex.lower() == "</table>":
-                   n = TokenHTML("PR - table cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - table cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.table_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<img>":
-                   n = TokenHTML("PR - img", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - img", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.img)
                    i -=1 
                elif self.auxlex.lower() == "<caption>":
-                   n = TokenHTML("PR - caption abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - caption abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.caption_abrir)
                    i -=1
                elif self.auxlex.lower() == "</caption>":
-                   n = TokenHTML("PR - caption cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - caption cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.caption_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<tr>":
-                   n = TokenHTML("PR - tr abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tr abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tr_abrir)
                    i -=1
                elif self.auxlex.lower() == "</tr>":
-                   n = TokenHTML("PR - tr cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tr cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tr_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<th>":
-                   n = TokenHTML("PR - th abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - th abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.th_abrir)
                    i -=1
                elif self.auxlex.lower() == "</th>":
-                   n = TokenHTML("PR - th cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - th cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.th_cerrar)
                    i -=1 
                elif self.auxlex.lower() == "<td>":
-                   n = TokenHTML("PR - td abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - td abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.td_abrir)
                    i -=1
                elif self.auxlex.lower() == "</td>":
-                   n = TokenHTML("PR - td cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - td cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.td_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<a>":
-                   n = TokenHTML("PR - a abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - a abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.a_abrir)
                    i -=1
                elif self.auxlex.lower() == "</a>":
-                   n = TokenHTML("PR - a cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - a cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.a_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<colgroup>":
-                   n = TokenHTML("PR - colgroup abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - colgroup abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.colgroup_abrir)
                    i -=1
                elif self.auxlex.lower() == "</colgroup>":
-                   n = TokenHTML("PR - colgroup cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - colgroup cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.colgroup_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<thead>":
-                   n = TokenHTML("PR - thead abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - thead abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.thead_abrir)
                    i -=1
                elif self.auxlex.lower() == "</thead>":
-                   n = TokenHTML("PR - thead cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - thead cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.thead_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<tbody>":
-                   n = TokenHTML("PR - tbody abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tbody abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tbody_abrir)
                    i -=1
                elif self.auxlex.lower() == "</tbody>":
-                   n = TokenHTML("PR - tbody cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tbody cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tbody_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<tfoot>":
-                   n = TokenHTML("PR - tfoot abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tfoot abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tfoot_abrir)
                    i -=1
                elif self.auxlex.lower() == "</tfoot>":
-                   n = TokenHTML("PR - tfoot cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tfoot cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tfoot_cerrar)
                    i -=1
                elif self.auxlex.lower() == "<col>":
-                   n = TokenHTML("PR - col", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - col", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.col)
                    i -=1
                elif self.auxlex.lower() == "<ol>":
-                   n = TokenHTML("PR - ol abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - ol abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ol_abrir)
                    i -=1
                elif self.auxlex.lower() == "</ol>":
-                   n = TokenHTML("PR - ol cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - ol cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ol_cerrar)
                    i -=1
@@ -546,143 +546,143 @@ class AnalizadorHTML:
                w = TokenColor(self.auxlex, 'rojo')
                self.listaColores.append(w)
                if self.auxlex.lower() == "<html":
-                   n = TokenHTML("PR - html abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - html abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.html_abrir)
                    i -=1
                elif self.auxlex.lower() == "<head":
-                   n = TokenHTML("PR - head abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - head abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.head_abrir)
                    i -=1
                elif self.auxlex.lower() == "<title":
-                   n = TokenHTML("PR - title abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - title abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.title_abrir)
                    i -=1
                elif self.auxlex.lower() == "<body":
-                   n = TokenHTML("PR - body abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - body abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.body_abrir)
                    i -=1
                elif self.auxlex.lower() == "<h1":
-                   n = TokenHTML("PR - h1 abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h1 abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h1_abrir)
                    i -=1
                elif self.auxlex.lower() == "<h2":
-                   n = TokenHTML("PR - h2 abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h2 abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h2_abrir)
                    i -=1
                elif self.auxlex.lower() == "<h3":
-                   n = TokenHTML("PR - h3 abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h3 abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h3_abrir)
                    i -=1
                elif self.auxlex.lower() == "<h4":
-                   n = TokenHTML("PR - h4 abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h4 abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h4_abrir)
                    i -=1
                elif self.auxlex.lower() == "<h5":
-                   n = TokenHTML("PR - h5 abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h5 abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h5_abrir)
                    i -=1
                elif self.auxlex.lower() == "<h6":
-                   n = TokenHTML("PR - h6 abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - h6 abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.h6_abrir)
                    i -=1
                elif self.auxlex.lower() == "<p":
-                   n = TokenHTML("PR - p abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - p abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.p_abrir)
                    i -=1
                elif self.auxlex.lower() == "<ul":
-                   n = TokenHTML("PR - ul abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - ul abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ul_abrir)
                    i -=1
                elif self.auxlex.lower() == "<li":
-                   n = TokenHTML("PR - li abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - li abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.li_abrir)
                    i -=1
                elif self.auxlex.lower() == "<table":
-                   n = TokenHTML("PR - table abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - table abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.table_abrir)
                    i -=1
                elif self.auxlex.lower() == "<img":
-                   n = TokenHTML("PR - img2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - img2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.img)
                    i -=1 
                elif self.auxlex.lower() == "<caption":
-                   n = TokenHTML("PR - caption abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - caption abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.caption_abrir)
                    i -=1
                elif self.auxlex.lower() == "<tr":
-                   n = TokenHTML("PR - tr abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tr abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tr_abrir)
                    i -=1
                elif self.auxlex.lower() == "<th":
-                   n = TokenHTML("PR - th abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - th abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.th_abrir)
                    i -=1
                elif self.auxlex.lower() == "<td":
-                   n = TokenHTML("PR - td abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - td abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.td_abrir)
                    i -=1
                elif self.auxlex.lower() == "<a":
-                   n = TokenHTML("PR - a abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - a abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.a_abrir)
                    i -=1
                elif self.auxlex.lower() == "<colgroup":
-                   n = TokenHTML("PR - colgroup abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - colgroup abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.colgroup_abrir)
                    i -=1
                elif self.auxlex.lower() == "<thead":
-                   n = TokenHTML("PR - thead abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - thead abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.thead_abrir)
                    i -=1
                elif self.auxlex.lower() == "<tbody":
-                   n = TokenHTML("PR - tbody abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tbody abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tbody_abrir)
                    i -=1
                elif self.auxlex.lower() == "<tfoot":
-                   n = TokenHTML("PR - tfoot abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - tfoot abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.tfoot_abrir)
                    i -=1
                elif self.auxlex.lower() == "<col":
-                   n = TokenHTML("PR - col2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - col2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.col)
                    i -=1
                elif self.auxlex.lower() == "<ol":
-                   n = TokenHTML("PR - ol abrir2", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - ol abrir2", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ol_abrir)
                    i -=1
                elif self.auxlex.lower() == "<!--pathw:":
-                   n = TokenHTML("PR - ruta windows abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - ruta windows abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ruta_abrir)
                    self.espathwindows = True
                    i -=1
                elif self.auxlex.lower() == "<!--pathl:":
-                   n = TokenHTML("PR - ruta linux abrir", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - ruta linux abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.ruta_abrir)
                    self.espathlinux = True
@@ -714,7 +714,7 @@ class AnalizadorHTML:
 
                        w = TokenColor(self.auxlex, 'gris')
                        self.listaColores.append(w)
-                       n = TokenHTML("Path", self.auxlex, self.contafila, self.contacolumna)
+                       n = TokenHTML("Path", self.auxlex, self.contafila, self.contacolumna, self.estado)
                        self.listaTokens.append(n)
                        self.agregarToken(Token.igual)
                        self.contacolumna += 1
@@ -736,22 +736,22 @@ class AnalizadorHTML:
                w = TokenColor(self.auxlex, 'rojo')
                self.listaColores.append(w)
                if self.auxlex.lower() == "src":
-                   n = TokenHTML("PR - src", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - src", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.src)
                    i -=1
                elif self.auxlex.lower() == "href":
-                   n = TokenHTML("PR - href", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - href", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.href)
                    i -=1
                elif self.auxlex.lower() == "style":
-                   n = TokenHTML("PR - style", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - style", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.style)
                    i -=1
                elif self.auxlex.lower() == "border":
-                   n = TokenHTML("PR - border", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - border", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.border)
                    i -=1
@@ -768,7 +768,7 @@ class AnalizadorHTML:
                if c == "\"":
                    w = TokenColor(self.auxlex, 'amarillo')
                    self.listaColores.append(w)
-                   n = TokenHTML("Cadena", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("Cadena", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.cadena)
                    i -=1
@@ -781,7 +781,7 @@ class AnalizadorHTML:
                if c == "'":
                    w = TokenColor(self.auxlex, 'amarillo')
                    self.listaColores.append(w)
-                   n = TokenHTML("Cadena", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("Cadena", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.cadena)
                    i -=1
@@ -796,7 +796,7 @@ class AnalizadorHTML:
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'rojo')
                    self.listaColores.append(w)
-                   n = TokenHTML("PR - cerrar", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("PR - cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.pr_cerrar)
                    #todo
@@ -811,7 +811,7 @@ class AnalizadorHTML:
                if c == '<':
                    w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
-                   n = TokenHTML("Texto normal", self.auxlex, self.contafila, self.contacolumna)
+                   n = TokenHTML("Texto normal", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.texto)
                    #todo

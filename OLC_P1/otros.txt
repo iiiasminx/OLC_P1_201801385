@@ -34,3 +34,17 @@ h1, h2, para10 {
 NO SE RECONOCE LA PALABRA:  -> ' para8 '
 NO SE RECONOCE LA PALABRA0:  -> '  '
 NO SE RECONOCE LA PALABRA0:  -> '  '
+
+/*PATHW: /home/compi/reporteWindowsCSS.html*/
+/*PATHL: /home/compi/reporteLinuxCSS.html*/
+
+para-7#para8{
+  text-align: 2px solid rgba(0, 0, 0, 0.1);
+  color: 76% arial, sans-serif;	
+}
+
+para9::para10{
+  text-align: 0 0 0 0.2 remrgba51, 51, 51, 0.25);
+  color: red;	
+}
+

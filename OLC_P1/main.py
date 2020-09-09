@@ -117,7 +117,7 @@ ventana = tkinter.Tk()
 ventana.option_add('*Dialog.msg.font', 'Helvetica 12')
 ventana.resizable(False, False) 
 ventana.config(bg ='plum4')
-w = 800
+w = 840
 h = 500
 ws = ventana.winfo_screenwidth() 
 hs = ventana.winfo_screenheight() 
@@ -138,7 +138,7 @@ lNumber2 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber3 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber5 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber6 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
-txtDentro = scrolledtext.ScrolledText(frIzquieda, height = "20", width ="36", fg= "snow", bg ="gray25")
+txtDentro = scrolledtext.ScrolledText(frIzquieda, height = "20", width ="42", fg= "snow", bg ="gray25")
 scrollbar = Scrollbar(txtDentro, orient='horizontal')
 
 
