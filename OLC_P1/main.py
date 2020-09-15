@@ -7,6 +7,7 @@ from tkinter import ttk
 from tkinter import scrolledtext 
 import Analizador_html
 import Analizador_css
+import Analizador_js
 from collections import deque
 from pathlib import Path
 
@@ -17,6 +18,27 @@ from pathlib import Path
 texto = None
 final = ""
 pathAbierto = ""
+
+def hacerLaMagiaJS():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Iniciando el analizador léxico - JS")
+    funcionaxfa = Analizador_js.AnalizadorJS()
+    funcionaxfa.comenzar()
+
+    listaNueva = funcionaxfa.escanear(txtIngresado.get("1.0", END))
+    txtDentro.delete('1.0', END)
+
+    listaConsola = funcionaxfa.pasarListaAString()
+    txtDentro.insert(INSERT, listaConsola)
+
+    txtIngresado.delete('1.0', END)
+    
+    listaColores = funcionaxfa.getColores()
+
+    for f in listaColores:
+        txtIngresado.insert(END, f.token, f.color)
+
+    funcionaxfa.crearHTMLReportes()
 
 def hacerLaMagiaCSS():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -117,7 +139,7 @@ ventana = tkinter.Tk()
 ventana.option_add('*Dialog.msg.font', 'Helvetica 12')
 ventana.resizable(False, False) 
 ventana.config(bg ='plum4')
-w = 840
+w = 880
 h = 500
 ws = ventana.winfo_screenwidth() 
 hs = ventana.winfo_screenheight() 
@@ -138,7 +160,7 @@ lNumber2 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber3 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber5 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
 lNumber6 = tkinter.Label(frIzquieda, text = "      ", bg ='plum4')
-txtDentro = scrolledtext.ScrolledText(frIzquieda, height = "20", width ="42", fg= "snow", bg ="gray25")
+txtDentro = scrolledtext.ScrolledText(frIzquieda, height = "20", width ="45", fg= "snow", bg ="gray25")
 scrollbar = Scrollbar(txtDentro, orient='horizontal')
 
 
@@ -184,7 +206,7 @@ nuevo = Menu(menu, tearoff=0)
 nuevo.add_command(label='Ejecutar Análisis')
 nuevo.add_command(label='Ejecutar HTML', command=hacerLaMagiaHTML)
 nuevo.add_command(label='Ejecutar CSS', command=hacerLaMagiaCSS)
-nuevo.add_command(label='Ejecutar JavaScript')
+nuevo.add_command(label='Ejecutar JavaScript', command=hacerLaMagiaJS)
 menu.add_cascade(label='Ejecutar', menu=nuevo)
 bout = Menu(menu, tearoff=0)
 bout.add_command(label='About', command=aboutme)

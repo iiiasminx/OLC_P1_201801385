@@ -283,7 +283,7 @@ class AnalizadorCSS:
                    self.listaColores.append(w)
                    n = TokenCSS("Porcentaje", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
-                   self.agregarToken(Token.coma)
+                   self.agregarToken(Token.porcentaje)
                    self.contacolumna += 1
                elif c == '-':
                    self.auxlex += c
@@ -345,6 +345,7 @@ class AnalizadorCSS:
                            w = TokenColor(c, 'blanco')
                            self.listaColores.append(w)
                        else:
+                           self.auxlex += c
                            print("NO SE RECONOCE LA PALABRA0:  -> '", self.auxlex, "'")
                            n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
                            self.listaErrores.append(n)
@@ -362,6 +363,7 @@ class AnalizadorCSS:
 
                    self.estado = 2
                else:
+                   self.auxlex += c
                    print("NO SE RECONOCE LA PALABRA1:  -> '", self.auxlex, "'")
                    n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
                    self.listaErrores.append(n)
@@ -464,11 +466,12 @@ class AnalizadorCSS:
                    self.contacolumna += 1
                    self.estado = 8
                else:
-                       print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
-                       n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
-                       self.listaErrores.append(n)
-                       self.auxlex = ""
-                       self.estado = 0
+                   self.auxlex += c
+                   print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
+                   n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
+                   self.listaErrores.append(n)
+                   self.auxlex = ""
+                   self.estado = 0
            elif self.estado == 5:
                if c == '{' or c == ':' or c == '#' or c == ',':
                    w = TokenColor(self.auxlex, 'verde')
@@ -480,11 +483,12 @@ class AnalizadorCSS:
                    self.listaColores.append(w)
                    i -=1
                else:
-                       print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
-                       n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
-                       self.listaErrores.append(n)
-                       self.auxlex = ""
-                       self.estado = 0
+                   self.auxlex += c
+                   print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
+                   n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
+                   self.listaErrores.append(n)
+                   self.auxlex = ""
+                   self.estado = 0
            elif self.estado == 6:
                #dos puntos, dos puntos dobles
                if c == ':':
@@ -736,6 +740,7 @@ class AnalizadorCSS:
                        self.auxlex += c
                        self.contacolumna += 1
                    else:
+                       self.auxlex += c
                        print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
                        n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
                        self.listaErrores.append(n)
@@ -815,6 +820,7 @@ class AnalizadorCSS:
                    self.agregarToken(Token.u_pc)
                    i -=1
                else:
+                   self.auxlex += c
                    print("NO SE RECONOCE LA UNIDAD DE MEDIDA:  -> '", self.auxlex, "'")
                    n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
                    self.listaErrores.append(n)
@@ -826,7 +832,7 @@ class AnalizadorCSS:
                    self.estado = 12
                    self.auxlex += c
                    self.contacolumna += 1
-               elif c == ' ' or c == ',' or c == ';' or c == '\n':
+               elif c == ' ' or c == ',' or c == ';' or c == '\n'or c == '}':
                     w = TokenColor(self.auxlex, 'verde')
                     self.listaColores.append(w)
                     n = TokenCSS("Variable", self.auxlex, self.contafila, self.contacolumna, self.estado)
@@ -834,11 +840,12 @@ class AnalizadorCSS:
                     self.agregarToken(Token.numeral)
                     i -= 1
                else:
-                    print("NO SE RECONOCE LA PALABRA12:  -> '", self.auxlex, "'")
-                    n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
-                    self.listaErrores.append(n)
-                    self.auxlex = ""
-                    self.estado = 0 
+                   self.auxlex += c
+                   print("NO SE RECONOCE LA PALABRA12:  -> '", self.auxlex, "'")
+                   n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
+                   self.listaErrores.append(n)
+                   self.auxlex = ""
+                   self.estado = 0 
            elif self.estado == 13:
                if c.isalpha() or c == '-':
                    self.estado = 13
@@ -865,6 +872,7 @@ class AnalizadorCSS:
                        self.listaTokens.append(n)
                        self.agregarToken(Token.pr_url)
                    else:
+                       self.auxlex += c
                        print("NO SE RECONOCE LA PALABRA13:  -> '", self.auxlex, "'")
                        n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
                        self.listaErrores.append(n)
@@ -872,11 +880,12 @@ class AnalizadorCSS:
                        self.estado = 0   
                    i -= 1
                else:
-                    print("NO SE RECONOCE LA PALABRA13:  -> '", self.auxlex, "'")
-                    n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
-                    self.listaErrores.append(n)
-                    self.auxlex = ""
-                    self.estado = 0 
+                   self.auxlex += c
+                   print("NO SE RECONOCE LA PALABRA13:  -> '", self.auxlex, "'")
+                   n = ErrorCSS(self.contafila, self.contacolumna, self.auxlex, self.estado)
+                   self.listaErrores.append(n)
+                   self.auxlex = ""
+                   self.estado = 0 
            elif self.estado == 14:
                if c == "\"":
                    w = TokenColor(self.auxlex, 'amarillo')

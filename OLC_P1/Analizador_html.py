@@ -32,11 +32,12 @@ class TokenColor:
         self.color = color
 
 class TokenHTML:
-    def __init__(self, tipo, valor, contafila, contacolumna):
+    def __init__(self, tipo, valor, contafila, contacolumna, estado):
         self.valor = valor
         self.tipo = tipo
         self.contafilaa = contafila
         self.contacolumnaa = contacolumna
+        self.estado = estado
         # hola = tokenhtml(token.html_abrir)
 
     def getValorToken(self):
@@ -534,6 +535,7 @@ class AnalizadorHTML:
                    self.agregarToken(Token.ol_cerrar)
                    i -=1
                else:
+                   self.auxlex += c
                    print("NO SE RECONOCE LA PALABRA2:  -> '", self.auxlex, "'")
                    self.listaColores.pop()
                    n = ErrorHtml(self.contafila, self.contacolumna, self.auxlex)
@@ -688,6 +690,7 @@ class AnalizadorHTML:
                    self.espathlinux = True
                    i -=1
                else:
+                   self.auxlex += c
                    print("NO SE RECONOCE LA PALABRA3:  -> '", self.auxlex, "'")
                    self.listaColores.pop()
                    n = ErrorHtml(self.contafila, self.contacolumna, self.auxlex)
@@ -756,6 +759,7 @@ class AnalizadorHTML:
                    self.agregarToken(Token.border)
                    i -=1
                else:
+                   self.auxlex += c
                    print("NO SE RECONOCE LA PALABRA5:  -> '", self.auxlex, "'")
                    self.listaColores.pop()
                    n = ErrorHtml(self.contafila, self.contacolumna, self.auxlex)
