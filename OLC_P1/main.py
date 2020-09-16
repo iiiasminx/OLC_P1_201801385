@@ -19,6 +19,24 @@ texto = None
 final = ""
 pathAbierto = ""
 
+def hacerLaMagiaGeneral():
+   miPath = lblRuta['text']
+   print("EL PATH ES: ", miPath)
+   filename, file_extension = os.path.splitext(miPath)
+   print("1.", filename)
+   print("2.", file_extension)
+
+   if "js" in file_extension:
+        hacerLaMagiaJS()
+   elif "css" in file_extension:
+       hacerLaMagiaCSS()
+   elif "html" in file_extension:
+       hacerLaMagiaHTML()
+   else:
+       messagebox.showinfo(message="No se encuentra el tipo de archivo\nPor favor escoja manualmente el tipo de análisis que desea", title="ATENCIÓN!")
+
+
+
 def hacerLaMagiaJS():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("Iniciando el analizador léxico - JS")
@@ -39,6 +57,7 @@ def hacerLaMagiaJS():
         txtIngresado.insert(END, f.token, f.color)
 
     funcionaxfa.crearHTMLReportes()
+    funcionaxfa.generarGrafo()
 
 def hacerLaMagiaCSS():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -116,6 +135,7 @@ def guardar():
 def nuevoBoton():
     txtIngresado.delete('1.0', END)
     txtDentro.delete('1.0', END)
+    lblRuta['text'] = "     "
 
 def aboutme():
     messagebox.showinfo(message="Yásmin Elisa Monterroso Escobedo\n\t201801385\n\t      :3", title="Sobre mi :D")
@@ -125,6 +145,7 @@ def abrirArchivo():
     #devuelve la location de la cosa
     ventana.filename = filedialog.askopenfilename(initialdir="/home", title="Selecciona tu archivo")
     f = open(ventana.filename, "r").read()
+    lblRuta['text'] = ventana.filename
     final = f
     final = f.strip()
     #print("TEXTO QUE LEO: '", final, "'")
@@ -164,7 +185,7 @@ txtDentro = scrolledtext.ScrolledText(frIzquieda, height = "20", width ="45", fg
 scrollbar = Scrollbar(txtDentro, orient='horizontal')
 
 
-botonErrores = tkinter.Button(frIzquieda, text ="Reporte de Errores")
+lblRuta = tkinter.Label(frIzquieda, text ="         ", bg ='plum4')
 botonNormal = tkinter.Button(frDerecha, text ="Reporte de Tokens")
 
 
@@ -192,7 +213,7 @@ lNumber3.grid(row=1, column = 0)
 lNumber6.grid(row=1, column = 0)
 txtDentro.grid(row=3, column=1)
 lNumber5.grid(row=4, column=1)
-botonErrores.grid(row=5, column=1)
+lblRuta.grid(row=5, column=1)
 frIzquieda.grid(row=0, column=1)
 
 menu = Menu(ventana, tearoff=0)
@@ -203,7 +224,7 @@ new_item.add_command(label='Guardar')
 new_item.add_command(label='Guardar como', command=guardarComo)
 menu.add_cascade(label='Archivo', menu=new_item)
 nuevo = Menu(menu, tearoff=0)
-nuevo.add_command(label='Ejecutar Análisis')
+nuevo.add_command(label='Ejecutar Análisis', command=hacerLaMagiaGeneral)
 nuevo.add_command(label='Ejecutar HTML', command=hacerLaMagiaHTML)
 nuevo.add_command(label='Ejecutar CSS', command=hacerLaMagiaCSS)
 nuevo.add_command(label='Ejecutar JavaScript', command=hacerLaMagiaJS)

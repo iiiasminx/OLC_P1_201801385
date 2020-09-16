@@ -7,6 +7,9 @@ import errno
 import subprocess
 import webbrowser
 import time
+from subprocess import check_call
+from PIL import Image
+
 
 #
 #
@@ -120,9 +123,25 @@ class Token(enum.Enum):
     ruta_cerrar = auto()
     punto = auto()
     coma = auto()
+    negacion = auto()
+    dos_puntos = auto()
+    guion_bajo = auto()
 
+class SintacticoJS:
+
+    controlToken = 0
+    tokenActual = None
+    listaTokensSin = deque()
+    listaErroresSin= deque()
+
+    def emparejar(self, tip):
+        print("Matcheando con: " + tip + " \t\t\t " + self.tokenActual.tipo)
+        if self.tokenActual.tipo != tip:
+            pass
 
 class AnalizadorJS:
+
+   esSintáctico = False
 
    listaSalida = deque()
 
@@ -144,7 +163,7 @@ class AnalizadorJS:
    listaErrores = deque()
    listaTokens = deque()
    listaColores = deque()
-
+   
    arreglotokens = []
 
    linklinux = ""
@@ -154,6 +173,13 @@ class AnalizadorJS:
    yaespacioinicio = False
    contaiwales = 0
    vienenNumeros = False
+
+   grafito = ""
+   yacomentariomulti = False
+   yacomentariouna = False
+   yacadena = False
+   yacadenachikita  = False
+   yanumeroo = False
 
    #
    #    BANDERAS DE CADA COSITO
@@ -185,7 +211,7 @@ class AnalizadorJS:
 
            #acá comiendo a mandar todo a todos lados
            if self.estado == 0 :
-               #acá mando todo a todos lados
+               #acá mando todo a todos lados               
                if c.isalpha():
                     #puede ser palabra reservada
                     self.estado = 5
@@ -215,6 +241,11 @@ class AnalizadorJS:
                    self.estado = 9
                    self.auxlex += c
                    self.contacolumna += 1
+                   if self.yanumeroo == False:
+                       s0s9 = "S0 -> S9[ label=\"digito\" ];\n"                    
+                       if s0s9 not in self.grafito:
+                           self.grafito += s0s9
+                           self.grafito += "S9 [style=filled, fillcolor=darkorchid3];\n"
                elif c == '\'':
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'amarillo')
@@ -227,8 +258,19 @@ class AnalizadorJS:
                    if self.eschar == False:
                        self.eschar = True
                        self.estado = 11
+
+                       if self.yacadenachikita == False:
+                            s0s12 = "S0 -> S12[ label=\"'\" ];\n"
+                            if s0s12 not in self.grafito:
+                                self.grafito += s0s12     
                    else:
                        self.eschar = False
+                       if self.yacadenachikita == False:
+                            self.yacadenachikita = True
+                            s12s13 = "S12 -> S13[ label=\"'\" ];\n"
+                            if s12s13 not in self.grafito:
+                                self.grafito += s12s13
+                                self.grafito += "S13 [style=filled, fillcolor=darkorchid3];\n"
                elif c == '\"':
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'amarillo')
@@ -236,13 +278,24 @@ class AnalizadorJS:
                    n = TokenJS("Comillas dobles", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.comillas_dobles)
-                   self.contacolumna += 1
+                   self.contacolumna += 1                   
 
                    if self.escadena == False:
                        self.escadena = True
                        self.estado = 10
+
+                       if self.yacadena == False:
+                            s0s10 = "S0 -> S10[ label=\"''\" ];\n"
+                            if s0s10 not in self.grafito:
+                                self.grafito += s0s10                           
                    else:
                        self.escadena = False
+                       if self.yacadena == False:
+                            self.yacadena = True
+                            s10s11 = "S10 -> S11[ label=\"''\" ];\n"
+                            if s10s11 not in self.grafito:
+                                self.grafito += s10s11
+                                self.grafito += "S11 [style=filled, fillcolor=darkorchid3];\n"
                elif c == '\n':
                    self.contafila += 1
                    self.contacolumna = 0
@@ -259,7 +312,15 @@ class AnalizadorJS:
                    n = TokenJS("Llaves abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.llave_abrir)
-                   self.contacolumna += 1               
+                   self.contacolumna += 1    
+               elif c == ':':
+                   self.auxlex += c
+                   w = TokenColor(self.auxlex, 'negro')
+                   self.listaColores.append(w)
+                   n = TokenJS("Dos puntos", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.dos_puntos)
+                   self.contacolumna += 1          
                elif c == '}':
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'naranja')
@@ -314,6 +375,32 @@ class AnalizadorJS:
                    self.estado = 7
                    self.auxlex += c
                    self.contacolumna += 1
+               elif c == '-':
+                   #puede ser menos, menos iwal, menos menos
+                   self.estado = 12
+                   self.auxlex += c
+                   self.contacolumna += 1
+               elif c == '!':
+                   #puede ser != o !exp
+                   self.estado = 13
+                   self.auxlex += c
+                   self.contacolumna += 1
+               elif c == '<':
+                   self.estado = 15
+                   self.auxlex += c
+                   self.contacolumna += 1
+               elif c == '>':
+                   self.estado = 16
+                   self.auxlex += c
+                   self.contacolumna += 1
+               elif c == '&':
+                   self.estado = 17
+                   self.auxlex += c
+                   self.contacolumna += 1
+               elif c == '|':
+                   self.estado = 18
+                   self.auxlex += c
+                   self.contacolumna += 1
                else:
                    if c == '$':
                        print("El análisis Ha terminado")
@@ -329,10 +416,21 @@ class AnalizadorJS:
                            self.listaErrores.append(n)
                            self.auxlex = ""
                            self.estado = 0 
-           elif self.estado == 1:
-               # acá mando por tipo de comentario o divisor
+           elif self.estado == 1: # /
                if c == '*':
                    self.auxlex += c
+
+                   if self.yacomentariomulti == False:
+                       s0s1 = "S0 -> S1[ label=\"/\" ];\n"
+                       s1s2 = "S1 -> S2[ label=\"*\" ];\n"  
+
+                       if s0s1 not in self.grafito:
+                           self.grafito += s0s1
+                    
+                       if s1s2 not in self.grafito:
+                           self.grafito += s1s2
+                          
+
                    w = TokenColor(self.auxlex, 'gris')
                    self.listaColores.append(w)
                    n = TokenJS("Inicio Comentario", self.auxlex, self.contafila, self.contacolumna, self.estado)
@@ -343,6 +441,15 @@ class AnalizadorJS:
                    self.estado = 2
                elif c == '/':
                    self.auxlex += c
+
+                   if self.yacomentariouna == False:
+                       s0s1 = "S0 -> S1[ label=\"/\" ];\n"
+                       s1s5 = "S1 -> S5[ label=\"/\" ];\n"  
+                       if s0s1 not in self.grafito:
+                           self.grafito += s0s1
+                       if s1s5 not in self.grafito:
+                           self.grafito += s1s5
+
                    w = TokenColor(self.auxlex, 'gris')
                    self.listaColores.append(w)
                    n = TokenJS("Inicio Comentario", self.auxlex, self.contafila, self.contacolumna, self.estado)
@@ -352,7 +459,6 @@ class AnalizadorJS:
 
                    self.estado = 3      
                else:
-                   self.auxlex += c
                    w = TokenColor(self.auxlex, 'naranja')
                    self.listaColores.append(w)
                    n = TokenJS("Dividido", self.auxlex, self.contafila, self.contacolumna, self.estado)
@@ -360,15 +466,23 @@ class AnalizadorJS:
                    self.agregarToken(Token.dividido)
                    self.contacolumna += 1
                    i -= 1
-           elif self.estado == 2:
-               #aca si es multilinea
+           elif self.estado == 2: # comentario multilinea
                if c == '*':
                    #puede ser un asterisco salvaje
                    self.ultimoAsterisco = True
                    self.estado = 2
                    self.auxlex += c
                elif c == '/':
-                   if self.ultimoAsterisco == True:
+                   if self.ultimoAsterisco == True:                       
+                        s2s3 = "S2 -> S3[ label=\"*\" ];\n" 
+                        s2s2 = "S2 -> S2[ label=\"Comentario multilinea \" ];\n" 
+                        if self.yacomentariomulti == False:                            
+                            if "S2 -> S2[" not in self.grafito:
+                                self.grafito += s2s2
+                            if s2s3 not in self.grafito:
+                                self.grafito += s2s3   
+
+
                         self.ultimoAsterisco = False
                         w = TokenColor(self.auxlex, 'gris')
                         self.listaColores.append(w)
@@ -389,8 +503,7 @@ class AnalizadorJS:
                        self.contacolumna = 0
                    else:
                       self.contacolumna += 1
-           elif self.estado == 3:
-               # aca si es de una linea y path
+           elif self.estado == 3: # commentario una linea
                if c == '\n':                   
                    z = self.auxlex.lower()
                    if z.startswith("pathw"):
@@ -410,6 +523,13 @@ class AnalizadorJS:
                        self.agregarToken(Token.ruta_abrir)
                    else:
                        w = TokenColor(self.auxlex, 'gris')
+
+                       if self.yacomentariouna == False:
+                            self.grafito += " S5 -> S5[ label=\""+ self.auxlex +"\" ];" 
+                            self.grafito += " S5 -> S6[ label=\"/n\" ];" 
+                            self.grafito += "S6 [style=filled, fillcolor=darkorchid3];\n" 
+                            self.yacomentariouna = True
+
                        self.listaColores.append(w)
                        n = TokenJS("Cuerpo Comentario", self.auxlex, self.contafila, self.contacolumna, self.estado)
                        self.listaTokens.append(n)
@@ -419,14 +539,29 @@ class AnalizadorJS:
                else:
                    self.estado = 3
                    self.auxlex += c
-           elif self.estado == 4:
+           elif self.estado == 4: # *
                if c == '/':
                    self.auxlex += c
+
+                   if self.yacomentariomulti == False:
+                       s3s4 = "S3 -> S4[ label=\"/\" ];\n"
+                       if s3s4 not in self.grafito:
+                           self.grafito += s3s4
+                           self.grafito += "S4 [style=filled, fillcolor=darkorchid3];\n"
+                           self.yacomentariomulti = True 
+
                    w = TokenColor(self.auxlex, 'gris')
                    self.listaColores.append(w)
                    n = TokenJS("Final Comentario", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.comentario_multilinea_cerrar)
+                   self.contacolumna += 1
+               elif c == '=':
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Asignacion", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.asignacion)
                    self.contacolumna += 1
                else:
                    w = TokenColor(self.auxlex, 'naranja')
@@ -436,13 +571,18 @@ class AnalizadorJS:
                    self.agregarToken(Token.asterisco)
                    self.contacolumna += 1
                    i -= 1
-           elif self.estado == 5:
+           elif self.estado == 5: # letras
                if c.isalpha():
                    #acá junto todo lo que pueda venir
                    self.estado = 5
                    self.auxlex += c
                    self.contacolumna += 1
                elif c.isdigit():
+                   self.vienenNumeros = True
+                   self.estado = 5
+                   self.auxlex += c
+                   self.contacolumna += 1
+               elif c == '_':
                    self.vienenNumeros = True
                    self.estado = 5
                    self.auxlex += c
@@ -460,9 +600,7 @@ class AnalizadorJS:
                         i -=1 
                    else:
                        self.estado = 6                   
-           elif self.estado == 6:
-               #acá van todas las palabras reservadas, dependiendo de eso
-               # mando todo a diferentes estados 
+           elif self.estado == 6: #PR
                w = TokenColor(self.auxlex, 'rojo')
                self.listaColores.append(w)
                if self.auxlex == "var":
@@ -558,7 +696,7 @@ class AnalizadorJS:
                    i -=1 
                    
                i -= 1
-           elif self.estado == 7:
+           elif self.estado == 7: # +
                if c == '+':
                    w = TokenColor(self.auxlex, 'naranja')
                    self.listaColores.append(w)
@@ -581,8 +719,7 @@ class AnalizadorJS:
                    self.agregarToken(Token.mas)
                    self.contacolumna += 1
                    i -= 1
-           elif self.estado == 8:
-               #Iwales
+           elif self.estado == 8: # =
               if c == '=':
                   self.estado = 8
                   self.auxlex += c
@@ -619,8 +756,7 @@ class AnalizadorJS:
                        self.estado = 0 
 
                    i -= 1
-           elif self.estado == 9:
-               #Números!
+           elif self.estado == 9: # Numeros!
                if c.isnumeric():
                    self.estado = 9
                    self.auxlex += c
@@ -631,6 +767,7 @@ class AnalizadorJS:
                        self.estado = 9
                        self.auxlex += c
                        self.contacolumna += 1
+                            
                    else:
                        print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
                        n = ErrorJS(self.contafila, self.contacolumna, self.auxlex, self.estado)
@@ -638,16 +775,36 @@ class AnalizadorJS:
                        self.auxlex = ""
                        self.estado = 0
                else:
+                   if self.yanumeroo == False:
+                       s9s9 = "S9 -> S9[ label=\"digito\" ];\n"                    
+                       if s9s9 not in self.grafito:
+                            self.grafito += s9s9
+                       s9s14 = "S9 -> S14[ label=\".\" ];\n"                    
+                       if s9s14 not in self.grafito:
+                            self.grafito += s9s14
+                            self.grafito += "S14 [style=filled, fillcolor=darkorchid3];\n"
+                       s14s14 = "S14 -> S14[ label=\"digito\" ];\n"                    
+                       if s14s14 not in self.grafito:
+                            self.grafito += s14s14
+                       self.yanumeroo = True
+
                    self.yapunto = False
                    w = TokenColor(self.auxlex, 'azul')
                    self.listaColores.append(w)
                    n = TokenJS("Número", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.numero)
-           elif self.estado == 10:
+                   i -=1
+           elif self.estado == 10: # cadena ""
                #aceptando cadenas
                if c == "\"":
                    w = TokenColor(self.auxlex, 'amarillo')
+
+                   s10s10 = " S10 -> S10[ label=\""+ self.auxlex +"\" ];\n"
+                   if self.yacadena == False:                            
+                       if "S10 -> S10[" not in self.grafito:
+                           self.grafito += s10s10
+
                    self.listaColores.append(w)
                    n = TokenJS("Cadena", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
@@ -657,10 +814,16 @@ class AnalizadorJS:
                else:
                    self.estado = 10
                    self.auxlex += c
-           elif self.estado == 11:
+           elif self.estado == 11: # cadena '
                #aceptando cadenas
                if c == "\'":
                    w = TokenColor(self.auxlex, 'amarillo')
+                   
+                   if self.yacadenachikita == False:     
+                       s12s12 = " S12 -> S12[ label=\""+ self.auxlex +"\" ];\n" 
+                       if s12s12 not in self.grafito:
+                           self.grafito += s12s12  
+
                    self.listaColores.append(w)
                    n = TokenJS("Char", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
@@ -670,27 +833,138 @@ class AnalizadorJS:
                else:
                    self.estado = 11
                    self.auxlex += c
-           elif self.estado == 12:
-              pass
-           elif self.estado == 13:
-              pass
-           elif self.estado == 14:
-              pass
-           elif self.estado == 15:
-              pass
-           elif self.estado == 16:
-              pass
-           elif self.estado == 17:
-              pass
-           elif self.estado == 18:
-              pass
+           elif self.estado == 12: # -
+               if c == '-':
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Menos Menos", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.menos_menos)
+                   self.contacolumna += 1
+               elif c == '=':
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Menos igual", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.menos_igual)
+                   self.contacolumna += 1
+               else:
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Menos", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.menos)
+                   self.contacolumna += 1
+                   i -= 1
+           elif self.estado == 13: # !
+               # != o !exp
+               if c == '=':
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Distinto", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.distinto)
+                   self.contacolumna += 1
+               elif c.isalpha():
+                   #meto negación y mando al 14 para ver la exp
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("No igual", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.negacion)
+                   self.contacolumna += 1
+                   self.estado = 14
+                   i -= 1
+               else:
+                   self.auxlex += c
+                   print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
+                   n = ErrorJS(self.contafila, self.contacolumna, self.auxlex, self.estado)
+                   self.listaErrores.append(n)
+                   self.auxlex = ""
+                   self.estado = 0 
+           elif self.estado == 14: #identificador del not
+              if c.isalnum() or c == '_':
+                  self.estado = 14
+                  self.auxlex += c
+                  self.contacolumna += 1
+              else:
+                  wangji = TokenColor(self.auxlex, 'verde')
+                  self.listaColores.append(wangji)
+                  n = TokenJS("Identificador", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                  self.listaTokens.append(n)
+                  self.agregarToken(Token.identificador)
+                  self.yaespacioinicio = False
+                  self.vienenNumeros = False
+                  i -=1 
+           elif self.estado == 15: #<
+               if c == '=':
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Menor o igual", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.menor_igual)
+                   self.contacolumna += 1
+               else:
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Menor que", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.menor)
+                   self.contacolumna += 1
+                   i -= 1
+           elif self.estado == 16: # >
+               if c == '=':
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Mayor o igual", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.mayor_igual)
+                   self.contacolumna += 1
+               else:
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("Mayor que", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.mayor)
+                   self.contacolumna += 1
+                   i -= 1
+           elif self.estado == 17: # &&
+               if c == '&':
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("AND", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.l_and)
+                   self.contacolumna += 1
+               else:
+                   self.auxlex += c
+                   print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
+                   n = ErrorJS(self.contafila, self.contacolumna, self.auxlex, self.estado)
+                   self.listaErrores.append(n)
+                   self.auxlex = ""
+                   self.estado = 0 
+           elif self.estado == 18: # ||
+               if c == '|':
+                   w = TokenColor(self.auxlex, 'naranja')
+                   self.listaColores.append(w)
+                   n = TokenJS("OR", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.l_or)
+                   self.contacolumna += 1
+               else:
+                   self.auxlex += c
+                   print("NO SE RECONOCE LA PALABRA:  -> '", self.auxlex, "'")
+                   n = ErrorJS(self.contafila, self.contacolumna, self.auxlex, self.estado)
+                   self.listaErrores.append(n)
+                   self.auxlex = ""
+                   self.estado = 0 
            elif self.estado == 19:
               pass
+           elif self.estado == 20:
+              pass           
            
            i += 1
        return self.listaSalida
-
-
 
    def imprimirListaTokens(self, lista: deque):
        for f in lista:
@@ -711,6 +985,43 @@ class AnalizadorJS:
        self.auxlex = ""
        self.estado = 0
 
+   def generarStringGraphviz(self):
+       holiwi = "digraph G {\n"
+       holiwi += self.grafito
+       holiwi += "\n}"
+       return holiwi
+
+   def generarGrafo(self):
+       wuxian = self.generarStringGraphviz()
+       path1 = self.linklinux        
+
+       if path1 == "":
+           print("ERROR: no hay ruta :C")
+           return
+       
+       path1 = path1.replace('.', '')
+       path2 = path1 + "GrafoJS.png"
+       path1 = path1 + "GrafoJS.dot"
+
+       if not os.path.exists(os.path.dirname(path1)):
+           try:
+               os.makedirs(os.path.dirname(path1))
+           except OSError as exc: # Guard against race condition
+              if exc.errno != errno.EEXIST:
+                  raise
+            
+       with open(path1, "w") as f:
+            f.write(wuxian) 
+
+       time.sleep(1)
+       check_call(['dot','-Tpng',path1,'-o',path2])
+       time.sleep(1)
+       f = Image.open(path2)
+       f.show()
+
+       #print("ya :D")
+       
+
    def crearHTMLReportes(self):
        contenido = self.reporteCompleto()
        #print(contenido)
@@ -724,20 +1035,23 @@ class AnalizadorJS:
         #  os.remove(path)
         #   time.sleep(1)
 
+       path = path.replace('.', '')
+       path2 = path + "ReporteJS.html"
 
-       if not os.path.exists(os.path.dirname(path)):
+
+       if not os.path.exists(os.path.dirname(path2)):
            try:
-               os.makedirs(os.path.dirname(path))
+               os.makedirs(os.path.dirname(path2))
            except OSError as exc: # Guard against race condition
               if exc.errno != errno.EEXIST:
                   raise
             
-       with open(path, "w") as f:
+       with open(path2, "w") as f:
             f.write(contenido) 
 
        print("Reporte generado con éxito :D")
        time.sleep(1)
-       webbrowser.open('file://' + os.path.realpath(path))
+       webbrowser.open('file://' + os.path.realpath(path2))
    
    def reporteCompleto(self):
         frase_actual = ("<!DOCTYPE HTML>" +

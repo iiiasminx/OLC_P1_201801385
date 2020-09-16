@@ -860,20 +860,23 @@ class AnalizadorHTML:
         #  os.remove(path)
         #   time.sleep(1)
 
+       path = path.replace('.', '')
+       path2 = path + "ReporteHTML.html"
 
-       if not os.path.exists(os.path.dirname(path)):
+
+       if not os.path.exists(os.path.dirname(path2)):
            try:
-               os.makedirs(os.path.dirname(path))
+               os.makedirs(os.path.dirname(path2))
            except OSError as exc: # Guard against race condition
               if exc.errno != errno.EEXIST:
                   raise
             
-       with open(path, "w") as f:
+       with open(path2, "w") as f:
             f.write(contenido) 
 
        print("Reporte generado con éxito :D")
        time.sleep(1)
-       webbrowser.open('file://' + os.path.realpath(path))
+       webbrowser.open('file://' + os.path.realpath(path2))
        
    def reporteCompleto(self):
 
