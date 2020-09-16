@@ -231,7 +231,7 @@ class AnalizadorCSS:
                    self.contacolumna += 1
                elif c == '{':
                    self.auxlex += c
-                   w = TokenColor(self.auxlex, 'naranja')
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenCSS("Llaves abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
@@ -240,7 +240,7 @@ class AnalizadorCSS:
                    self.yaNumeral = False
                elif c == '}':
                    self.auxlex += c
-                   w = TokenColor(self.auxlex, 'naranja')
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenCSS("Llaves cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
@@ -493,14 +493,14 @@ class AnalizadorCSS:
                #dos puntos, dos puntos dobles
                if c == ':':
                    self.auxlex += c
-                   w = TokenColor(self.auxlex, 'naranja')
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenCSS("Dos puntos dobles", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.dos_puntos_dobles)
                    self.contacolumna += 1
                else:
-                   w = TokenColor(self.auxlex, 'naranja')
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenCSS("Dos puntos", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)

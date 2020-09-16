@@ -126,6 +126,7 @@ class Token(enum.Enum):
     negacion = auto()
     dos_puntos = auto()
     guion_bajo = auto()
+    pr_null = auto()
 
 class SintacticoJS:
 
@@ -307,7 +308,7 @@ class AnalizadorJS:
                    self.listaColores.append(w)
                elif c == '{':
                    self.auxlex += c
-                   w = TokenColor(self.auxlex, 'naranja')
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenJS("Llaves abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
@@ -323,7 +324,7 @@ class AnalizadorJS:
                    self.contacolumna += 1          
                elif c == '}':
                    self.auxlex += c
-                   w = TokenColor(self.auxlex, 'naranja')
+                   w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenJS("Llaves cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
@@ -646,11 +647,17 @@ class AnalizadorJS:
                    self.agregarToken(Token.pr_continue)
                    i -=1
                elif self.auxlex == "true":
+                   self.listaColores.pop()
+                   wangji = TokenColor(self.auxlex, 'azul')
+                   self.listaColores.append(wangji)
                    n = TokenJS("PR - true", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.pr_true)
                    i -=1
                elif self.auxlex == "false":
+                   self.listaColores.pop()
+                   wangji = TokenColor(self.auxlex, 'azul')
+                   self.listaColores.append(wangji)
                    n = TokenJS("PR - false", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.pr_false)
@@ -669,6 +676,11 @@ class AnalizadorJS:
                    n = TokenJS("PR - function", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
                    self.agregarToken(Token.pr_function)
+                   i -=1
+               elif self.auxlex == "null":
+                   n = TokenJS("PR - null", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                   self.listaTokens.append(n)
+                   self.agregarToken(Token.pr_null)
                    i -=1
                elif self.auxlex == "constructor":
                    n = TokenJS("PR - constructor", self.auxlex, self.contafila, self.contacolumna, self.estado)
