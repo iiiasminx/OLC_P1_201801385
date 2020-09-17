@@ -85,6 +85,7 @@ def hacerLaMagiaJS():
 
     funcionaxfa.crearHTMLReportes()
     funcionaxfa.generarGrafo()
+    funcionaxfa.generarArchivoCorregido()
 
 def hacerLaMagiaCSS():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -106,6 +107,7 @@ def hacerLaMagiaCSS():
         txtIngresado.insert(END, f.token, f.color)
 
     funcionaxfa.crearHTMLReportes()
+    funcionaxfa.generarArchivoCorregido()
 
    #falta crear reportes!!
    
@@ -134,6 +136,7 @@ def hacerLaMagiaHTML():
         txtIngresado.insert(END, f.token, f.color)
 
     funcionaxfa.crearHTMLReportes()
+    funcionaxfa.generarArchivoCorregido()
     #messagebox.showinfo(message="REPORTE GENERADO CON ÉXITO", title=":D")
 
 def guardarComo():

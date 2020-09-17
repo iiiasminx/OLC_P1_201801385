@@ -168,6 +168,7 @@ class AnalizadorHTML:
 
    stringListaSalida = ""
    mihtml = ""
+   stringArchivo = ""
 
    def comenzar(self):
        self.stringListaSalida = ""
@@ -880,7 +881,6 @@ class AnalizadorHTML:
        webbrowser.open('file://' + os.path.realpath(path2))
        
    def reporteCompleto(self):
-
         frase_actual = ("<!DOCTYPE HTML>" +
                 "<html>" +
                     "<head>" +
@@ -973,6 +973,45 @@ class AnalizadorHTML:
         self.mihtml = self.mihtml + frase_actual
 
         return self.mihtml
+
+
+   def pasarArchivo(self):
+       for f in self.listaColores:
+           self.stringArchivo += f.token
+       return self.stringArchivo
+
+   def generarArchivoCorregido(self):
+       contenido = self.pasarArchivo()
+       #print(contenido)
+       path = self.rutalinux
+
+       if path == "":
+           print("ERROR: no hay ruta :C")
+           return
+
+        #  if os.path.exists(os.path.dirname(path)):
+        #  os.remove(path)
+        #   time.sleep(1)
+
+       path = path.replace('.', '')
+       path2 = path + "ArchivoHTML.html"
+
+
+       if not os.path.exists(os.path.dirname(path2)):
+           try:
+               os.makedirs(os.path.dirname(path2))
+           except OSError as exc: # Guard against race condition
+              if exc.errno != errno.EEXIST:
+                  raise
+            
+       with open(path2, "w") as f:
+            f.write(contenido) 
+
+       print("Archivo corregido generado con éxito :D")
+       time.sleep(1)
+       webbrowser.open('file://' + os.path.realpath(path2))
+
+
 
 
 
