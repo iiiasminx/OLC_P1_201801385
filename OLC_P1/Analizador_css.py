@@ -174,6 +174,8 @@ class AnalizadorCSS:
    grafito = ""
    stringArchivo = ""
 
+   anteriorAsteriso = False
+
    def comenzar(self):
        self.stringListaSalida = ""
        self.listaColores.clear()
@@ -380,34 +382,45 @@ class AnalizadorCSS:
                    i -=1
            elif self.estado == 2:
                if c == '*':
-                   
-                   z = self.auxlex.lower()
-                   if z.startswith("pathw"):
-                       w = TokenColor(self.auxlex, 'gris')
-                       self.listaColores.append(w)
-                       n = TokenCSS("PR - ruta windows abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
-                       self.listaTokens.append(n)
-                       self.agregarToken(Token.ruta_abrir)
-                   elif z.startswith("pathl"):
-                       w = TokenColor(self.auxlex, 'gris')
-                       self.listaColores.append(w)
-                       x = self.auxlex
-                       self.linklinux = x.replace('PATHL: ', '')
-                       print("LINK ENCONTRADO:", self.linklinux)
-                       n = TokenCSS("PR - ruta linux abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
-                       self.listaTokens.append(n)
-                       self.agregarToken(Token.ruta_abrir)
+                   #por si es un cosito salvaje
+                   self.anteriorAsteriso = True
+                   self.estado = 2
+                   self.auxlex +=c
+               elif c == "/":
+                   if self.anteriorAsteriso == True:
+                       self.anteriorAsteriso = False
+                       z = self.auxlex.lower()
+                       if z.startswith("pathw"):
+                            w = TokenColor(self.auxlex, 'gris')
+                            self.listaColores.append(w)
+                            n = TokenCSS("PR - ruta windows abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                            self.listaTokens.append(n)
+                            self.agregarToken(Token.ruta_abrir)
+                       elif z.startswith("pathl"):
+                            w = TokenColor(self.auxlex, 'gris')
+                            self.listaColores.append(w)
+                            x = self.auxlex
+                            self.linklinux = x.replace('PATHL: ', '')
+                            print("LINK ENCONTRADO:", self.linklinux)
+                            n = TokenCSS("PR - ruta linux abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                            self.listaTokens.append(n)
+                            self.agregarToken(Token.ruta_abrir)
+                       else:
+                            w = TokenColor(self.auxlex, 'gris')
+                            self.listaColores.append(w)
+                            n = TokenCSS("Cuerpo Comentario", self.auxlex, self.contafila, self.contacolumna, self.estado)
+                            self.listaTokens.append(n)
+                            self.agregarToken(Token.comentario)
+                            self.contacolumna += 1 
+                       i -= 2
                    else:
-                       w = TokenColor(self.auxlex, 'gris')
-                       self.listaColores.append(w)
-                       n = TokenCSS("Cuerpo Comentario", self.auxlex, self.contafila, self.contacolumna, self.estado)
-                       self.listaTokens.append(n)
-                       self.agregarToken(Token.comentario)
-                       self.contacolumna += 1                   
-                   i -= 1
+                       self.estado = 2
+                       self.auxlex += c
+                       self.anteriorAsteriso = False
                else:
                    self.estado = 2
                    self.auxlex += c
+                   self.anteriorAsteriso = False
                    if c == '\n':
                        self.contafila += 1
                        self.contacolumna = 0

@@ -188,6 +188,8 @@ class AnalizadorJS:
    yacadena = False
    yacadenachikita  = False
    yanumeroo = False
+   yaiwaliwal = False
+   yaii = False
 
    stringArchivo = ""
 
@@ -774,6 +776,11 @@ class AnalizadorJS:
                       self.listaTokens.append(n)
                       self.agregarToken(Token.igual)
                       self.contacolumna += 1
+                      if self.yaiwaliwal == False:
+                            s0s8 = "S0 -> S8[ label=\"=\" ];\n" 
+                            self.grafito += "S8 [style=filled, fillcolor=darkorchid3];\n" 
+                            if s0s8 not in self.grafito:
+                                self.grafito += s0s8
                    elif self.contaiwales == 2:
                       w = TokenColor(self.auxlex, 'naranja')
                       self.listaColores.append(w)
@@ -781,6 +788,18 @@ class AnalizadorJS:
                       self.listaTokens.append(n)
                       self.agregarToken(Token.igual_igual)
                       self.contacolumna += 1
+                      if self.yaiwaliwal == False:
+                            s0s8 = "S0 -> S8[ label=\"=\" ];\n" 
+                            self.grafito += "S8 [style=filled, fillcolor=darkorchid3];\n" 
+                            if s0s8 not in self.grafito:
+                                self.grafito += s0s8
+
+                            s8s9 = "S8 -> S15[ label=\"=\" ];\n"
+                            self.grafito += "S15 [style=filled, fillcolor=darkorchid3];\n"
+                            self.grafito += "S8 [style=filled, fillcolor=darkorchid3];\n" 
+                            self.yaiwaliwal = True 
+                            if s8s9 not in self.grafito:
+                                self.grafito += s8s9
                    elif self.contaiwales == 3:
                       w = TokenColor(self.auxlex, 'naranja')
                       self.listaColores.append(w)
@@ -788,6 +807,20 @@ class AnalizadorJS:
                       self.listaTokens.append(n)
                       self.agregarToken(Token.igual_igual_igual)
                       self.contacolumna += 1
+                      if self.yaiwaliwal == False:
+                            s0s8 = "S0 -> S8[ label=\"=\" ];\n" 
+                            self.grafito += "S8 [style=filled, fillcolor=darkorchid3];\n" 
+                            if s0s8 not in self.grafito:
+                                self.grafito += s0s8
+
+                            s8s15 = "S8 -> S15[ label=\"=\" ];\n" 
+                            s15s16 = "S15 -> S16[ label=\"=\" ];\n"
+                            self.grafito += "S15 [style=filled, fillcolor=darkorchid3];\n" 
+                            self.grafito += "S16 [style=filled, fillcolor=darkorchid3];\n" 
+                            self.yaiwaliwal = True
+                            if s8s15 not in self.grafito:
+                                self.grafito += s8s15
+                                self.grafito += s15s16
                    else:
                        self.auxlex += c
                        print("NO SE RECONOCE LA PALABRA8:  -> '", self.auxlex, "'")
@@ -971,6 +1004,15 @@ class AnalizadorJS:
                    i -= 1
            elif self.estado == 17: # &&
                if c == '&':
+                   if self.yaii == False:
+                            s0s17 = "S0 -> S17[ label=\"&\" ];\n" 
+                            s17s18 = "S17 -> S18[ label=\"&\" ];\n" 
+                            self.grafito += "S18 [style=filled, fillcolor=darkorchid3];\n" 
+                            if s0s17 not in self.grafito:
+                                self.grafito += s0s17
+                                self.grafito += s17s18
+
+
                    w = TokenColor(self.auxlex, 'naranja')
                    self.listaColores.append(w)
                    n = TokenJS("AND", self.auxlex, self.contafila, self.contacolumna, self.estado)
