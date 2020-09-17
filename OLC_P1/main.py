@@ -32,10 +32,37 @@ def hacerLaMagiaGeneral():
        hacerLaMagiaCSS()
    elif "html" in file_extension:
        hacerLaMagiaHTML()
+   elif "rmt" in file_extension:
+       hacerLaMagiaJSSintáctico()
    else:
        messagebox.showinfo(message="No se encuentra el tipo de archivo\nPor favor escoja manualmente el tipo de análisis que desea", title="ATENCIÓN!")
 
+def hacerLaMagiaJSSintáctico():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Iniciando el analizador léxico y sintáctico - JS")
+    funcionaxfa = Analizador_js.AnalizadorJS()
+    funcionaxfa.comenzar()
+    funcionaxfa.setSintactico()
 
+    listaNueva = funcionaxfa.escanear(txtIngresado.get("1.0", END))
+    txtDentro.delete('1.0', END)
+
+    listaConsola = funcionaxfa.pasarListaAString()
+    txtDentro.insert(INSERT, listaConsola)
+
+    txtIngresado.delete('1.0', END)
+    
+    listaColores = funcionaxfa.getColores()
+
+    for f in listaColores:
+        txtIngresado.insert(END, f.token, f.color)
+
+    #funcionaxfa.crearHTMLReportes()
+    #funcionaxfa.generarGrafo()
+    
+    funcionaxfa.crearHTMLReportes()
+    funcionaxfa.todoSintáctico()
+    funcionaxfa.generarHTMLSintactico()
 
 def hacerLaMagiaJS():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -228,6 +255,7 @@ nuevo.add_command(label='Ejecutar Análisis', command=hacerLaMagiaGeneral)
 nuevo.add_command(label='Ejecutar HTML', command=hacerLaMagiaHTML)
 nuevo.add_command(label='Ejecutar CSS', command=hacerLaMagiaCSS)
 nuevo.add_command(label='Ejecutar JavaScript', command=hacerLaMagiaJS)
+nuevo.add_command(label='Analizador Sintáctico', command=hacerLaMagiaJSSintáctico)
 menu.add_cascade(label='Ejecutar', menu=nuevo)
 bout = Menu(menu, tearoff=0)
 bout.add_command(label='About', command=aboutme)

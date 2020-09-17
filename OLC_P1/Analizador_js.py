@@ -17,6 +17,16 @@ from PIL import Image
 #
 #
 
+class TkOperacion:
+    def __init__(self, operacion, analisis, linea):
+        # Token.html_cerrar, "hdsih"
+        self.operacion = operacion
+        self.analisis = analisis
+        self.linea = linea
+    def __str__(self):
+        return '{} {} {}'.format(self.operacion, "->", self.analisis)
+        #return self.tipo, " -> ", self.valor
+
 class TokenC:
     def __init__(self, tipo, valor):
         # Token.html_cerrar, "hdsih"
@@ -127,23 +137,20 @@ class Token(enum.Enum):
     dos_puntos = auto()
     guion_bajo = auto()
     pr_null = auto()
-
-class SintacticoJS:
-
-    controlToken = 0
-    tokenActual = None
-    listaTokensSin = deque()
-    listaErroresSin= deque()
-
-    def emparejar(self, tip):
-        print("Matcheando con: " + tip + " \t\t\t " + self.tokenActual.tipo)
-        if self.tokenActual.tipo != tip:
-            pass
+    salto_de_linea = auto()
 
 class AnalizadorJS:
 
+   #COSAS QUE USO PARA EL SINTÁCTITCO
    esSintáctico = False
+   pilaSintactico = deque()
+   todoBientodoCorrecto = True
 
+   operacion = ""
+   listaOperaciones = deque()
+   htmlsintactico = ""
+
+   #TODO LO DEMÁS
    listaSalida = deque()
 
    estado = None
@@ -188,17 +195,29 @@ class AnalizadorJS:
 
    ultimoAsterisco = False
 
+   def setSintactico(self):
+       self.esSintáctico = True
+       
+
    def comenzar(self):
        self.stringListaSalida = ""
        self.listaColores.clear()
        self.listaErrores.clear()
        self.listaSalida.clear()
        self.listaTokens.clear()
+       self.pilaSintactico.clear()
+       self.todoBientodoCorrecto = True
+       self.operacion = ""
+       self.htmlsintactico = ""
+       self.mihtml = ""
+       self.grafito = ""
 
    def escanear(self, entrada):
        entrada = entrada + '$'
        self.estado = 0
       # print("'",entrada1,"'")
+
+       print("Es Sintáctico? ", self.esSintáctico)
 
        #BANDERAS
 
@@ -208,7 +227,7 @@ class AnalizadorJS:
        i = 0
 
        while (i < y):
-           c = entrada[i]
+           c = entrada[i]           
 
            #acá comiendo a mandar todo a todos lados
            if self.estado == 0 :
@@ -298,10 +317,12 @@ class AnalizadorJS:
                                 self.grafito += s10s11
                                 self.grafito += "S11 [style=filled, fillcolor=darkorchid3];\n"
                elif c == '\n':
+                   self.auxlex += c
                    self.contafila += 1
                    self.contacolumna = 0
                    w = TokenColor(c, 'blanco')
                    self.listaColores.append(w)
+                   self.agregarToken(Token.salto_de_linea)                   
                elif c == '\r':
                    self.contacolumna += 1
                    w = TokenColor(c, 'blanco')
@@ -312,8 +333,9 @@ class AnalizadorJS:
                    self.listaColores.append(w)
                    n = TokenJS("Llaves abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
+
                    self.agregarToken(Token.llave_abrir)
-                   self.contacolumna += 1    
+                   self.contacolumna += 1  
                elif c == ':':
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'negro')
@@ -328,6 +350,7 @@ class AnalizadorJS:
                    self.listaColores.append(w)
                    n = TokenJS("Llaves cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
+
                    self.agregarToken(Token.llave_cerrar)
                    self.contacolumna += 1
                elif c == '.':
@@ -336,6 +359,7 @@ class AnalizadorJS:
                    self.listaColores.append(w)
                    n = TokenJS("Punto", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
+
                    self.agregarToken(Token.punto)
                    self.contacolumna += 1
                elif c == ',':
@@ -352,14 +376,16 @@ class AnalizadorJS:
                    self.listaColores.append(w)
                    n = TokenJS("Paréntesis abrir", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
+
                    self.agregarToken(Token.parentesis_abrir)
-                   self.contacolumna += 1
+                   self.contacolumna += 1                   
                elif c == ')':
                    self.auxlex += c
                    w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenJS("Paréntesis cerrar", self.auxlex, self.contafila, self.contacolumna, self.estado)
                    self.listaTokens.append(n)
+
                    self.agregarToken(Token.parentesis_cerrar)
                    self.contacolumna += 1
                elif c == ';':
@@ -368,7 +394,8 @@ class AnalizadorJS:
                    w = TokenColor(self.auxlex, 'negro')
                    self.listaColores.append(w)
                    n = TokenJS("Punto y coma", self.auxlex, self.contafila, self.contacolumna, self.estado)
-                   self.listaTokens.append(n)
+                   self.listaTokens.append(n)                   
+
                    self.agregarToken(Token.punto_y_coma)
                    self.contacolumna += 1
                elif c == '+':
@@ -981,7 +1008,7 @@ class AnalizadorJS:
    def imprimirListaTokens(self, lista: deque):
        for f in lista:
            print(f)
-
+            
    def pasarListaAString(self):
        for f in self.listaTokens:
            hola = f.toString() + "\n"
@@ -996,6 +1023,59 @@ class AnalizadorJS:
        self.listaSalida.append(n)
        self.auxlex = ""
        self.estado = 0
+
+
+   def imprimirPilaSintactico(self):
+        for f in self.pilaSintactico:
+            print(f)
+
+   def compararSintáctico(self, tipo):
+       if len(self.pilaSintactico) >= 1:
+            sizhui = self.pilaSintactico[-1]
+            if tipo == sizhui.tipo:
+                print("Match!")
+                self.pilaSintactico.pop()
+            else:
+                print("Nop")
+                self.todoBientodoCorrecto = False
+       else:
+           print("Nop")
+           self.todoBientodoCorrecto = False
+
+   def todoSintáctico(self):
+       contasaltos = 1
+       for tokenc in self.listaSalida:
+           #Todo lo que no sea ; o \n lo meto a la cadena operacion
+           #si es ( o { los meto a la pila
+           if tokenc.tipo == Token.parentesis_abrir or tokenc.tipo == Token.llave_abrir:
+               self.pilaSintactico.append(tokenc)
+           
+           #Miro si tengo que sacar de la pila algo
+           if tokenc.tipo == Token.parentesis_cerrar:
+               self.compararSintáctico(Token.parentesis_abrir)
+           elif tokenc.tipo == Token.llave_cerrar:
+               self.compararSintáctico(Token.llave_abrir)
+
+           #acá es cuando termina la cosa
+           
+           if tokenc.tipo == Token.salto_de_linea:
+
+               if self.operacion != "":
+                   if len(self.pilaSintactico) > 0:
+                        self.todoBientodoCorrecto = False
+
+                   wei = TkOperacion(self.operacion, self.todoBientodoCorrecto, contasaltos)
+                   self.listaOperaciones.append(wei)
+
+                   print("Operacion: ", contasaltos, " es ", self.todoBientodoCorrecto)
+               
+               self.operacion = ""
+               self.pilaSintactico.clear()
+               self.todoBientodoCorrecto = True
+               contasaltos += 1
+           else:
+               self.operacion += tokenc.valor              
+
 
    def generarStringGraphviz(self):
        holiwi = "digraph G {\n"
@@ -1032,7 +1112,94 @@ class AnalizadorJS:
        f.show()
 
        #print("ya :D")
-       
+
+   # Estos dos son los que puedo tocar, los demás noooo 
+   def generarHTMLSintactico(self):
+       contenido = self.sintacticoCompleto()
+       #print(contenido)
+       path = self.linklinux
+
+       if path == "":
+           print("ERROR: no hay ruta :C")
+           return
+
+        #  if os.path.exists(os.path.dirname(path)):
+        #  os.remove(path)
+        #   time.sleep(1)
+
+       path = path.replace('.', '')
+       path2 = path + "ReporteSintácticoJS.html"
+
+
+       if not os.path.exists(os.path.dirname(path2)):
+           try:
+               os.makedirs(os.path.dirname(path2))
+           except OSError as exc: # Guard against race condition
+              if exc.errno != errno.EEXIST:
+                  raise
+            
+       with open(path2, "w") as f:
+            f.write(contenido) 
+
+       print("Reporte generado con éxito :D")
+       time.sleep(1)
+       webbrowser.open('file://' + os.path.realpath(path2))
+
+   def sintacticoCompleto(self):
+       frase_actual = ("<!DOCTYPE HTML>" +
+                "<html>" +
+                    "<head>" +
+                        "<title>Analizador Sintáctico JS</title>" +
+                        "<meta charset=\"utf8\">" +
+                "</head>" +
+                "<body><h1>Reporte de Análisis</h1>" +
+                "<h2>Lista de Tokens Aprobados</h2>")
+       self.htmlsintactico = frase_actual
+
+       #acá van mis tokens geniales
+
+       frase_actual = ("<table border=\"1\">"
+            + "<thead>"
+            + "<tr><th><strong>#</strong></th>"
+            "<th><strong>Fila</strong></th>" +
+            "<th><strong>Operacion</strong></th>"+
+            "<th><strong>Análisis</strong></th></tr></thead>"
+            + "<tbody>")
+       self.htmlsintactico = self.htmlsintactico + frase_actual
+
+
+       # aca es donde meto lo importante (una lista(?))
+       contador = 0
+       for f in self.listaOperaciones:
+           holi = str(contador) 
+           scontafila = str(f.linea)
+           
+           analisis = "Correcto"
+           
+           if f.analisis == False:
+                analisis = "Incorrecto"
+
+
+           frase_actual = ("<tr><td>" + holi + "</td>"
+                    + "<td>" + scontafila + "</td>"
+                    + "<td>" + f.operacion + "</td>"
+                    + "<td>" + analisis + "</td>"
+                    + " </tr>")
+
+           self.htmlsintactico = self.htmlsintactico + frase_actual
+           contador += 1
+
+
+       frase_actual = "</tbody></table></div><br><br><br>"
+       self.htmlsintactico = self.htmlsintactico + frase_actual
+
+       frase_actual = "</tbody></table></div><br><br><br>"
+       self.htmlsintactico = self.htmlsintactico + frase_actual
+       frase_actual = "</body></html>"
+       self.htmlsintactico = self.htmlsintactico + frase_actual
+
+       return self.htmlsintactico
+
 
    def crearHTMLReportes(self):
        contenido = self.reporteCompleto()

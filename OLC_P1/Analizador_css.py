@@ -7,6 +7,8 @@ import errno
 import subprocess
 import webbrowser
 import time
+from subprocess import check_call
+from PIL import Image
 
 
 
@@ -139,6 +141,8 @@ class ErrorCSS:
 
 class AnalizadorCSS:
 
+   esSintáctico = False
+
    listaSalida = deque()
 
    estado = None
@@ -167,6 +171,7 @@ class AnalizadorCSS:
    linklinux = ""
    stringListaSalida = ""
    mihtml = ""
+   grafito = ""
 
    def comenzar(self):
        self.stringListaSalida = ""
@@ -174,6 +179,7 @@ class AnalizadorCSS:
        self.listaErrores.clear()
        self.listaSalida.clear()
        self.listaTokens.clear()
+       self.mihtml = ""
 
    def escanear(self, entrada):
        entrada = entrada + '$'
@@ -1052,3 +1058,40 @@ class AnalizadorCSS:
         self.mihtml = self.mihtml + frase_actual
 
         return self.mihtml
+
+   def generarStringGraphviz(self):
+       holiwi = "digraph G {\n"
+       holiwi += self.grafito
+       holiwi += "\n}"
+       return holiwi
+
+   def generarGrafo(self):
+       wuxian = self.generarStringGraphviz()
+       path1 = self.linklinux        
+
+       if path1 == "":
+           print("ERROR: no hay ruta :C")
+           return
+       
+       path1 = path1.replace('.', '')
+       path2 = path1 + "GrafoCSS.png"
+       path1 = path1 + "GrafoCSS.dot"
+
+       if not os.path.exists(os.path.dirname(path1)):
+           try:
+               os.makedirs(os.path.dirname(path1))
+           except OSError as exc: # Guard against race condition
+              if exc.errno != errno.EEXIST:
+                  raise
+            
+       with open(path1, "w") as f:
+            f.write(wuxian) 
+
+       time.sleep(1)
+       check_call(['dot','-Tpng',path1,'-o',path2])
+       time.sleep(1)
+       f = Image.open(path2)
+       f.show()
+
+       #print("ya :D")
+    

@@ -175,6 +175,7 @@ class AnalizadorHTML:
        self.listaErrores.clear()
        self.listaSalida.clear()
        self.listaTokens.clear()
+       self.mihtml = ""
 
    def escanear(self, entrada):
        #entrada1 = entrada.strip()
